@@ -1,6 +1,7 @@
 'use client'
 
 import { AiOutlinePlusCircle } from "react-icons/ai";
+import Image from "next/image";
 
 const ManageOrders = () => {
     return (
@@ -46,10 +47,88 @@ const ManageOrders = () => {
             </div>
 
             {/* Card đơn hàng */}
-            <div className='flex justify-between items-center rounded-md p-3 mt-6 bg-white shadow-md'>
-                <div>
-                    <h3 className='font-semibold text-md'>Card đơn hàng</h3>
-                    <h5 className='font-light'>Coming soon</h5>
+            <div className='flex justify-between items-center rounded-md p-3 mt-6'>
+                <div className="flex flex-col lg:flex-row bg-white shadow-md rounded-md overflow-hidden p-4">
+                    {/* Hình ảnh */}
+                    <div className="flex-shrink-0 w-full lg:w-1/3 h-40 lg:h-auto relative">
+                        <Image
+                            src="/path-to-your-image.jpg"
+                            alt="Product"
+                            fill
+                            className="object-cover"
+                        />
+                    </div>
+
+                    {/* Nội dung */}
+                    <div className="flex flex-col flex-1 p-4 space-y-4">
+                        {/* Tiêu đề */}
+                        <h2 className="text-lg font-bold text-gray-800">
+                            Tên khách hàng: <span className="font-normal">Nguyễn Văn A</span>
+                        </h2>
+
+                        {/* Thông tin sản phẩm */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                            <p>
+                                <span className="font-semibold">Sản phẩm: </span>
+                                Trà sữa matcha
+                            </p>
+                            <p>
+                                <span className="font-semibold">Đơn giá: </span>
+                                45,000 VNĐ
+                            </p>
+                            <p>
+                                <span className="font-semibold">Số lượng: </span>
+                                2
+                            </p>
+                            <p>
+                                <span className="font-semibold">Size: </span>
+                                Lớn
+                            </p>
+                            <p>
+                                <span className="font-semibold">Topping: </span>
+                                Trân châu đen, Trân châu trắng
+                            </p>
+                            <p>
+                                <span className="font-semibold">Ghi chú: </span>
+                                Ít đá, thêm đường
+                            </p>
+                        </div>
+
+                        {/* Select trạng thái */}
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
+                            <label htmlFor="status" className="font-semibold text-sm">
+                                Trạng thái:
+                            </label>
+                            <select
+                                id="status"
+                                className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                            >
+                                <option value="pending">Đang xử lý</option>
+                                <option value="completed">Hoàn thành</option>
+                                <option value="cancelled">Đã hủy</option>
+                            </select>
+                        </div>
+
+                        {/* Người xử lí & Thời gian */}
+                        <div className="text-sm">
+                            <p>
+                                <span className="font-semibold">Người xử lí: </span>
+                                Admin01
+                            </p>
+                            <p>
+                                <span className="font-semibold">Thời gian: </span>
+                                18:30 - 19/12/2024
+                            </p>
+                        </div>
+
+                        {/* Button */}
+                        <div>
+                            <button
+                                className="mt-4 w-full bg-indigo-500 text-white py-2 px-4 rounded-md hover:bg-indigo-600 transition">
+                                Xem chi tiết
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

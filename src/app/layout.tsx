@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import './globals.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import AdminSidebar from "@/components/layout/admin.sidebar";
 
 export const metadata: Metadata = {

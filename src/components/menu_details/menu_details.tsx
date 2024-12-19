@@ -1,4 +1,5 @@
 'use client';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { getSize } from '@/utils/sizeServices';
 import { getTopping } from '@/utils/toppingClient';
 import { useEffect, useState } from 'react';

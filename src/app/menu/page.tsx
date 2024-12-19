@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 const AdminMenu = () => {
     return(
-        <></>
+        <>Menu</>
     )
 }
 
