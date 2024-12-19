@@ -15,6 +15,7 @@ const links = [
     { href: '/', label: 'Dashboard', icon: AiOutlineDashboard },
     { href: '/menu', label: 'Menu', icon: AiOutlineProduct },
     { href: '/orders', label: 'Order', icon: AiOutlineShoppingCart }
+    { href: '/menu-details', label: 'Menu_Details', icon: AiOutlineProduct },
 ];
 
 const AdminSidebar = () => {
