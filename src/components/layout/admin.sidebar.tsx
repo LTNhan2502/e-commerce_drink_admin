@@ -13,7 +13,8 @@ import Link from 'next/link';
 
 const links = [
     { href: '/', label: 'Dashboard', icon: AiOutlineDashboard },
-    { href: '/menu', label: 'Menu', icon: AiOutlineProduct }
+    { href: '/menu', label: 'Menu', icon: AiOutlineProduct }, 
+    { href: '/menu-details', label: 'Menu_Details', icon: AiOutlineProduct },
 ];
 
 const AdminSidebar = () => {
