@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useRef, useState} from 'react';
 import { addSize } from '@/utils/sizeServices';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,6 +11,36 @@ interface ModalSizeProps {
 function ModalSize({ show, handleClose }: ModalSizeProps) {
     const [size, setSize] = useState('');
     const [error, setError] = useState('');
+    const popupRef = useRef<HTMLDivElement>(null); // Tạo ref để tham chiếu đến modal
+    const [isVisible, setIsVisible] = useState(false); // Trạng thái kiểm soát animation
+
+    // Kích hoạt trạng thái visible khi show thay đổi
+    useEffect(() => {
+        if (show) {
+            setIsVisible(true);
+        } else {
+            // Đợi animation đóng hoàn tất trước khi đặt invisible
+            const timer = setTimeout(() => setIsVisible(false), 200);
+            return () => clearTimeout(timer); // Cleanup khi unmount
+        }
+    }, [show]);
+
+    // Nhấn ra ngoài thì đóng popup
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+                handleClose();
+            }
+        };
+
+        if (show) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [show, handleClose]);
 
     const handleSubmit = async () => {
         if (size.trim().length > 0) {
@@ -32,13 +62,13 @@ function ModalSize({ show, handleClose }: ModalSizeProps) {
     return (
         <>
             <div
-                className={`fixed inset-0 flex items-center justify-center transition-colors
-         ${show ? 'visible bg-black bg-opacity-50 z-50' : 'invisible'}`}
+                className={`fixed inset-0 flex items-center justify-center transition-colors duration-200
+                ${isVisible ? 'visible bg-black bg-opacity-50 z-50' : 'invisible'}`}
             >
                 <div
-                    className={`bg-white rounded-lg shadow-lg w-full max-w-md mx-auto transition-all
-            ${show ? 'scale-100 opacity-100' : 'scale-125 opacity-0'}
-            `}
+                    ref={popupRef}
+                    className={`bg-white rounded-lg shadow-lg w-full max-w-md mx-auto transition-all duration-200
+                    ${show ? 'scale-100 opacity-100' : 'scale-125 opacity-0'}`}
                 >
                     <div className='border-b px-4 py-3 flex justify-between items-center'>
                         <h2 className='text-lg font-medium'>Thêm Size Mới</h2>
