@@ -1,4 +1,4 @@
-import instance from './axios.config'
+import instance from "@/utils/axios.config";
 
 const loginAdmin = (username, password) => {
     const URL_API = "auth/login";

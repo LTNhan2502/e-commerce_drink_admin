@@ -1,4 +1,4 @@
-import instance from "./axios.config";
+import instance from "@/utils/axios.config";
 
 const getCategory = async () => {
     const res = await instance().get('/category');
