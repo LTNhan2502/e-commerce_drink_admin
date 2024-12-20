@@ -6,7 +6,7 @@ const getSize = async () => {
 };
 
 const addSize = async (size) => {
-   const res = await axiosClient.post('/size', { size });
+   const res = await instance.post('/size', { size });
    return res.data;
 };
 
