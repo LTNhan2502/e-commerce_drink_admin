@@ -2,6 +2,7 @@
 
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import Image from "next/image";
+import {IoAddCircleOutline} from "react-icons/io5";
 
 const ManageOrders = () => {
     return (
@@ -16,9 +17,11 @@ const ManageOrders = () => {
                     </div>
                     {/* Button thêm */}
                     <div>
-                        <button className='inline-flex items-center bg-indigo-200 text-indigo-800 hover:shadow-md transition-all hover:shadow-indigo-300 rounded-md p-1 text-sm font-medium gap-x-2'>
-                            <AiOutlinePlusCircle className='text-base' />
-                            Thêm đơn hàng
+                        <button
+                            className="bg-white border border-gray-300 text-indigo-500 hover:bg-indigo-800 hover:text-white rounded-full p-2 shadow transition-all"
+
+                        >
+                            <IoAddCircleOutline className="text-2xl"/>
                         </button>
                     </div>
                 </div>
