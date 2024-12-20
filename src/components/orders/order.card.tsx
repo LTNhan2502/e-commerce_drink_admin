@@ -1,25 +1,14 @@
 'use client'
 
-import { useState } from 'react';
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import Image from "next/image";
-
-interface IOrders {
-    customerName: string;
-    product: string;
-    price: number;
-    quantity: number;
-    size: string;
-    topping: string[];
-    note: string;
-    handler: string;
-    time: string;
-    status: string;
-}
+import { useState } from "react";
+import OrdersModal from "@/components/orders/orders.modal";
 
 const ManageOrders = () => {
-    const [selectedOrder, setSelectedOrder] = useState(null);
-    const orders: IOrders[] = Array(10).fill({
+    const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
+
+    const orders = Array(10).fill({
         customerName: "Nguyễn Văn A",
         product: "Trà sữa matcha",
         price: 45000,
@@ -31,10 +20,6 @@ const ManageOrders = () => {
         time: "18:30 - 19/12/2024",
         status: "pending",
     });
-
-    const handleModalClose = () => {
-        setSelectedOrder(null);
-    };
 
     return (
         <div className="px-3 py-2">
@@ -52,6 +37,26 @@ const ManageOrders = () => {
                         </button>
                     </div>
                 </div>
+
+                {/* Tìm kiếm */}
+                <div className="flex flex-wrap mt-3 gap-3">
+                    <input
+                        type="text"
+                        className="border rounded-md px-3 py-2 w-full md:w-1/4 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all placeholder:transition placeholder:translate-x-0 focus:placeholder:translate-x-2"
+                        placeholder="Tên khách"
+                    />
+                    <input
+                        type="number"
+                        className="border rounded-md px-3 py-2 w-full md:w-1/6 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all placeholder:transition placeholder:translate-x-0 focus:placeholder:translate-x-2"
+                        placeholder="Số bàn"
+                    />
+                    <select className="border rounded-md px-3 py-2 w-full md:w-1/4 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all">
+                        <option value="">Trạng thái</option>
+                        <option value="pending">Đang chờ</option>
+                        <option value="completed">Hoàn thành</option>
+                        <option value="cancelled">Đã hủy</option>
+                    </select>
+                </div>
             </div>
 
             {/* Danh sách đơn hàng */}
@@ -59,15 +64,25 @@ const ManageOrders = () => {
                 {orders.map((order, index) => (
                     <div
                         key={index}
-                        className="flex flex-col bg-white shadow-md rounded-md overflow-hidden p-4"
+                        className="flex flex-row bg-white shadow-md rounded-md overflow-hidden"
                     >
-                        {/* Nội dung */}
+                        {/* Hình ảnh bên trái */}
+                        <div className="w-1/3 h-full relative">
+                            <Image
+                                src={'https://ui-avatars.com/api/?backgound=c7d2fe&color=3730a3&bold=true'}
+                                alt="Product"
+                                fill
+                                className="object-cover h-full w-full"
+                            />
+                        </div>
+
+                        {/* Nội dung bên phải */}
                         <div className="flex flex-col flex-1 p-4 space-y-4">
                             <h2 className="text-lg font-bold text-gray-800">
                                 Tên khách hàng:{" "}
                                 <span className="font-normal">{order.customerName}</span>
                             </h2>
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
                                 <p>
                                     <span className="font-semibold">Sản phẩm: </span>
                                     {order.product}
@@ -82,62 +97,26 @@ const ManageOrders = () => {
                                 </p>
                                 <p>
                                     <span className="font-semibold">Trạng thái: </span>
-                                    {order.status === "pending"
-                                        ? "Đang xử lý"
-                                        : order.status === "completed"
-                                            ? "Hoàn thành"
-                                            : "Đã hủy"}
+                                    {order.status}
                                 </p>
                                 <p>
-                                    <span className="font-semibold">Ngày: </span>
+                                    <span className="font-semibold">Thời gian: </span>
                                     {order.time}
                                 </p>
                             </div>
-                            <div>
-                                <button
-                                    className="mt-4 py-2 px-4 font-semibold w-full bg-indigo-200 text-indigo-800 hover:shadow-md transition-all hover:shadow-indigo-300 rounded-md"
-                                    onClick={() => setSelectedOrder(order)}
-                                >
-                                    Xem chi tiết
-                                </button>
-                            </div>
+                            <button
+                                className="mt-4 py-2 px-4 font-semibold w-full bg-indigo-200 text-indigo-800 hover:shadow-md transition-all hover:shadow-indigo-300 rounded-md"
+                                onClick={() => setSelectedOrder(order)}
+                            >
+                                Xem chi tiết
+                            </button>
                         </div>
                     </div>
                 ))}
             </div>
 
-            {/* Modal chi tiết đơn hàng */}
-            {selectedOrder && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-md shadow-lg w-11/12 max-w-2xl p-6">
-                        <h2 className="text-xl font-bold mb-4">Chi tiết đơn hàng</h2>
-                        <div className="space-y-2 text-sm">
-                            <p><span className="font-semibold">Tên khách hàng:</span> {selectedOrder.customerName}</p>
-                            <p><span className="font-semibold">Sản phẩm:</span> {selectedOrder.product}</p>
-                            <p><span className="font-semibold">Số lượng:</span> {selectedOrder.quantity}</p>
-                            <p><span className="font-semibold">Tổng giá:</span> {(selectedOrder.price * selectedOrder.quantity).toLocaleString()} VNĐ</p>
-                            <p><span className="font-semibold">Size:</span> {selectedOrder.size}</p>
-                            <p><span className="font-semibold">Topping:</span> {selectedOrder.topping}</p>
-                            <p><span className="font-semibold">Ghi chú:</span> {selectedOrder.note}</p>
-                            <p><span className="font-semibold">Người xử lý:</span> {selectedOrder.handler}</p>
-                            <p><span className="font-semibold">Thời gian:</span> {selectedOrder.time}</p>
-                            <p><span className="font-semibold">Trạng thái:</span> {selectedOrder.status === "pending"
-                                ? "Đang xử lý"
-                                : selectedOrder.status === "completed"
-                                    ? "Hoàn thành"
-                                    : "Đã hủy"}</p>
-                        </div>
-                        <div className="mt-6 flex justify-end">
-                            <button
-                                className="px-4 py-2 bg-red-200 text-red-800 rounded-md hover:bg-red-300"
-                                onClick={handleModalClose}
-                            >
-                                Đóng
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Modal chi tiết */}
+            <OrdersModal selectedOrder={selectedOrder} setSelectedOrder={setSelectedOrder} />
         </div>
     );
 };
