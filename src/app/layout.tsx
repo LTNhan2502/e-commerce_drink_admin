@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import './globals.css';
 import AdminSidebar from "@/components/layout/admin.sidebar";
+import AdminFooter from "@/components/layout/admin.footer";
 
 export const metadata: Metadata = {
   title: "AnTea",
@@ -23,7 +24,7 @@ export default function RootLayout({
             <main className='flex-1 px-3 py-2 pl-20 bg-[#f5f5f9]'>
                 {children}
             </main>
-            <footer className='bg-gray-100 flex justify-center items-center'>Copyrights © 2024</footer>
+            <AdminFooter/>
         </div>
       </body>
     </html>
