@@ -1,4 +1,4 @@
-import instance from "./axios.config";
+import instance from "@/utils/axios.config";
 
 const getMenu = async (current, pageSize) => {
     const res = await instance.get('/menu', { params: { current, pageSize } });

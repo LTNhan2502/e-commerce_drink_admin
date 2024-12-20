@@ -1,7 +1,7 @@
-import axiosClient from "./axiosClient";
+import instance from "@/utils/axios.config";
 
 const getSize = async () => {
-   const res = await axiosClient.get('/size');
+   const res = await instance.get('/size');
    return res.data;
 };
 

@@ -1,7 +1,7 @@
-import axiosClient from "@/utils/axiosClient";
+import instance from "@/utils/axios.config";
 
 const getTopping = async () => {
-   const res = await axiosClient.get('/topping');
+   const res = await instance.get('/topping');
    return res.data;
 };
 

@@ -1,8 +1,15 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
+// Lấy token mới nhất từ Cookie
+const token = Cookies.get("access_token");
+
 const instance = axios.create({
     baseURL: 'https://order-drink.vercel.app',
+    credentials: 'include',
+    headers: {
+        'Content-Type': 'application/json'
+    },
 });
 
 
@@ -13,15 +20,21 @@ instance.interceptors.request.use( (config) => {
     // config.headers.Authorization = `Bearer ${localStorage.getItem("access_token")}`;
     // return config;
 
-    // Lấy token mới nhất từ localStorage
-    const token = Cookies.get("access_token");
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    } else {
-        // Xử lý khi không có token
-        delete config.headers.Authorization;
+    // if (token) {
+    //     config.headers.Authorization = `Bearer ${token}`;
+    // } else {
+    //     // Xử lý khi không có token
+    //     delete config.headers.Authorization;
+    // }
+    // return config;
+
+    config.headers = {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+        ...config.headers,
     }
-    return config;
+
+    return { ...config, data: config.data ?? null }
 },  (error) => {
     return Promise.reject(error);
 });
@@ -49,7 +62,7 @@ instance.interceptors.response.use(
                 Cookies.remove("access_token");
 
                 // Gọi API làm mới access token
-                const res = await instance.post("/auth/refreshtoken", {
+                const res = await instance.post("/auth/refreshToken", {
                     refreshToken, // Sử dụng refresh token
                 });
 

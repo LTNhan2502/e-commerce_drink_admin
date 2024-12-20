@@ -35,3 +35,16 @@ interface ICategory {
     __v: number;
 }
 
+interface IOrder {
+    customerName: string,
+    product: string,
+    price: number,
+    quantity: number,
+    size: string,
+    topping: string[],
+    note: string,
+    handler: string,
+    time: string,
+    status: string,
+}
+
