@@ -1,21 +1,84 @@
 'use client';
-import { getSize } from '@/utils/sizeServices';
-import { getTopping } from '@/utils/toppingClient';
+import {deleteSize, getSize} from '@/utils/sizeServices';
+import {deleteTopping, getTopping} from '@/utils/toppingClient';
 import { useEffect, useState } from 'react';
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { LiaEditSolid } from 'react-icons/lia';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import ModalSize from './modalSize';
 import ModalTopping from './modalTopping';
-import LoadingOverlay from "@/components/loading/loading.overlay";
+import LoadingOverlay from "@/components/reuse/loading.overlay";
+import {toast} from "react-toastify";
+import DeleteModal from "@/components/reuse/delete.modal";
 
 export default function MenuDetailsComponent() {
     const [size, setSize] = useState<ISize[]>([]);
     const [topping, setTopping] = useState<ITopping[]>([]);
     const [loading, setLoading] = useState(false);
 
+    const [selectedObject, setSelectedObject] = useState<ISize | ITopping | Partial<ISize> | Partial<ITopping>>({})
+    const [selectedType, setSelectedType] = useState<'size' | 'topping'>('size');
     const [showSizeModal, setShowSizeModal] = useState(false);
     const [showToppingModal, setShowToppingModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+    const handleOpenSizeModal = (size: ISize) => {
+        setSelectedObject(size)
+        setSelectedType('size')
+        setShowDeleteModal(true);
+    }
+
+    const handleOpenToppingModal = (topping: ITopping) => {
+        setSelectedObject(topping)
+        setSelectedType('topping')
+        setShowDeleteModal(true);
+    }
+
+    const handleDeleteSize = async (id: string) => {
+        setLoading(true);
+        try {
+            const res = await deleteSize(id)
+
+            if(res && res.statusCode === 200) {
+                setSize(prev => prev.filter((item) => item._id !== id))
+                toast.success("Xoá thành công")
+            }
+        }catch(error){
+            console.log("Failed to delete size", error)
+        }finally {
+            setLoading(false);
+            setShowDeleteModal(false);
+        }
+    }
+
+    const handleDeleteTopping = async (id: string) => {
+        setLoading(true);
+        try {
+            const res = await deleteTopping(id)
+
+            if(res && res.statusCode === 200) {
+                setTopping(prev => prev.filter((item) => item._id !== id))
+                toast.success("Xoá thành công")
+            }
+        }catch(error){
+            console.log("Failed to delete topping", error)
+        }finally {
+            setLoading(false);
+            setShowDeleteModal(false);
+        }
+    }
+
+    const handleConfirmDelete = () => {
+        if(selectedObject._id){
+            if(selectedType === 'size'){
+                handleDeleteSize(selectedObject._id)
+            }else if(selectedType === 'topping'){
+                handleDeleteTopping(selectedObject._id)
+            }
+        }else{
+            console.log("selectedObject or selectedObject._id is undefined");
+        }
+    }
 
     useEffect(() => {
         const fetchData = async () => {
@@ -24,6 +87,7 @@ export default function MenuDetailsComponent() {
                 const [sizeRes, toppingRes] = await Promise.all([getSize(), getTopping()]);
                 setSize(sizeRes.data);
                 setTopping(toppingRes.data);
+
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -34,11 +98,24 @@ export default function MenuDetailsComponent() {
         fetchData();
     }, []);
 
+    // Debug log
+    useEffect(() => {
+        console.log(">>Check size", size)
+        console.log(">>Check topping", topping)
+    }, [size, topping]);
+
     return (
         <>
             {loading && <LoadingOverlay />}
-            <ModalSize show={showSizeModal} handleClose={() => setShowSizeModal(false)} />
+            <ModalSize show={showSizeModal} handleClose={() => setShowSizeModal(false)} setOriginSize={setSize} />
             <ModalTopping show={showToppingModal} handleClose={() => setShowToppingModal(false)} />
+            <DeleteModal
+                show={showDeleteModal}
+                handleClose={() => setShowDeleteModal(false)}
+                selectedObject={selectedObject}
+                selectType={selectedType}
+                onConfirm={handleConfirmDelete}
+            />
 
             <div className="container mx-auto mt-6 text-end">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -68,7 +145,10 @@ export default function MenuDetailsComponent() {
                                         <button className="rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100">
                                             <LiaEditSolid className="text-2xl" />
                                         </button>
-                                        <button className="ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100">
+                                        <button
+                                            className="ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100"
+                                            onClick={() => handleOpenSizeModal(item)}
+                                        >
                                             <RiDeleteBin6Line className="text-2xl" />
                                         </button>
                                     </td>
@@ -108,7 +188,9 @@ export default function MenuDetailsComponent() {
                                             <LiaEditSolid className="text-2xl"/>
                                         </button>
                                         <button
-                                            className="ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100">
+                                            className="ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100"
+                                            onClick={() => handleOpenToppingModal(item)}
+                                        >
                                             <RiDeleteBin6Line className="text-2xl"/>
                                         </button>
                                     </td>

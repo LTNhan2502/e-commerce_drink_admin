@@ -1,103 +1,99 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-// Lấy token mới nhất từ Cookie
-const token = Cookies.get("access_token");
-
+// Tạo một instance Axios
 const instance = axios.create({
-    baseURL: 'https://order-drink.vercel.app',
-    credentials: 'include',
+    baseURL: "https://order-drink.vercel.app",
+    withCredentials: true, // Đảm bảo gửi cookies trong request
     headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
     },
 });
 
+// Interceptor cho request
+instance.interceptors.request.use(
+    (config) => {
+        // Lấy token từ Cookies
+        const token = Cookies.get("access_token");
 
-// Trước khi nó tuyền res lên thì nó phải chạy qua interceptor
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        } else {
+            // Xóa header Authorization nếu không có token
+            delete config.headers.Authorization;
+        }
 
-// Add a request interceptor
-instance.interceptors.request.use( (config) => {
-    // config.headers.Authorization = `Bearer ${localStorage.getItem("access_token")}`;
-    // return config;
-
-    // if (token) {
-    //     config.headers.Authorization = `Bearer ${token}`;
-    // } else {
-    //     // Xử lý khi không có token
-    //     delete config.headers.Authorization;
-    // }
-    // return config;
-
-    config.headers = {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/json',
-        ...config.headers,
+        return config;
+    },
+    (error) => {
+        // Xử lý lỗi request
+        return Promise.reject(error);
     }
+);
 
-    return { ...config, data: config.data ?? null }
-},  (error) => {
-    return Promise.reject(error);
-});
-
-// Response interceptor
+// Interceptor cho response
 instance.interceptors.response.use(
     (response) => {
+        // Trả về response nếu không có lỗi
         return response;
     },
     async (error) => {
         const originalRequest = error.config;
 
-        // Kiểm tra lỗi liên quan tới token
+        // Kiểm tra lỗi liên quan đến token hết hạn (401)
         if (error.response?.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-            const refreshToken = Cookies.get("refresh_token");
+            originalRequest._retry = true; // Đánh dấu rằng request này đã thử làm mới token
 
-            // Nếu không có refresh token thì không xử lí
+            const refreshToken = Cookies.get("refresh_token");
             if (!refreshToken) {
+                // Nếu không có refresh token thì chuyển hướng tới trang login
+                console.warn("Không có refresh token. Vui lòng đăng nhập lại.");
+                Cookies.remove("access_token");
+                Cookies.remove("refresh_token");
+                window.location.href = "/auth/login";
                 return Promise.reject(error);
             }
 
             try {
-                // Xóa access token cũ
-                Cookies.remove("access_token");
-
-                // Gọi API làm mới access token
-                const res = await instance.post("/auth/refreshToken", {
-                    refreshToken, // Sử dụng refresh token
+                console.log("> Đang gửi yêu cầu làm mới token...");
+                // Gọi API làm mới token
+                // Không dùng instance vì nó sẽ phải thông qua interceptor một lần nữa dẫn tới infinite loop
+                const res = await axios.post("https://order-drink.vercel.app/auth/refreshToken", {
+                    refreshToken,
                 });
 
-                // Cập nhật token mới
+                console.log(">> Đã làm mới token thành công:", res.data);
+
+                // Lấy access token mới từ phản hồi
                 const newAccessToken = res.data.data.accessToken;
-                Cookies.set("access_token", newAccessToken);
+                if (newAccessToken) {
+                    // Lưu lại token mới
+                    Cookies.set("access_token", newAccessToken);
 
-                // Cập nhật lại header của request bằng token mới
-                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                    // Cập nhật header Authorization với token mới
+                    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-                // Gọi lại API
-                return instance(originalRequest);
+                    // Thử lại request ban đầu
+                    return instance(originalRequest);
+                }
             } catch (refreshError) {
-                // Kiểm tra nếu refresh token hết hạn hoặc không hợp lệ
-                if (refreshError.response?.status === 401) {
-                    console.error("Refresh token expired or invalid.");
+                console.error(">> Làm mới token thất bại:", refreshError.response || refreshError);
 
-                    // Xóa token và chuyển hướng tới trang login
+                // Xóa token và chuyển hướng tới trang login nếu refresh token hết hạn
+                if (refreshError.response?.status === 401) {
                     Cookies.remove("access_token");
                     Cookies.remove("refresh_token");
-                    window.alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-                    window.location.href = "/login";
+                    console.warn("Refresh token đã hết hạn. Vui lòng đăng nhập lại.");
+                    window.location.href = "/auth/login";
                 }
 
-                // Trả về lỗi nếu refresh thất bại
                 return Promise.reject(refreshError);
             }
         }
 
-        // Trả lỗi nếu không phải lỗi liên quan đến token
-        if (error?.response?.data) return Promise.reject(error.response.data);
+        // Trả về lỗi nếu không phải lỗi liên quan đến token
         return Promise.reject(error);
     }
 );
 
-
-
-export default instance
+export default instance;

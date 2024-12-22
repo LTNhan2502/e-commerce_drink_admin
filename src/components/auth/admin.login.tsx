@@ -7,7 +7,7 @@ import React, {useState} from "react";
 import {toast} from "react-toastify";
 import {loginAdmin} from "@/utils/authAPI";
 import Cookies from "js-cookie";
-import LoadingOverlay from "@/components/loading/loading.overlay";
+import LoadingOverlay from "@/components/reuse/loading.overlay";
 
 const AdminLogin = () => {
     const [formData, setFormData] = useState<IFormData>({username: '', password: ''});
@@ -34,6 +34,8 @@ const AdminLogin = () => {
                 toast.success(`Chào mừng quay lại, ${data.username}`)
             }else if(data.statusCode === 404) {
                 toast.error("Tài khoản không tồn tại")
+            }else{
+                toast.error("Có lỗi xảy ra")
             }
         }catch(error){
             console.log("Failed to login", error)

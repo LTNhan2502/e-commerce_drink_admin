@@ -5,4 +5,9 @@ const getTopping = async () => {
    return res.data;
 };
 
-export { getTopping };
+const deleteTopping = async (id) => {
+   const res = await instance.delete(`topping/${id}`);
+   return res.data;
+}
+
+export { getTopping, deleteTopping };

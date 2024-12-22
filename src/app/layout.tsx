@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import './globals.css';
+import 'react-toastify/dist/ReactToastify.css';
 import AdminSidebar from "@/components/layout/admin.sidebar";
 import AdminFooter from "@/components/layout/admin.footer";
+import {ToastContainer} from "react-toastify";
 
 export const metadata: Metadata = {
   title: "AnTea",
@@ -26,6 +28,19 @@ export default function RootLayout({
             </main>
             <AdminFooter/>
         </div>
+
+        <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick={false}
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+        />
       </body>
     </html>
   );

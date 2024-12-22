@@ -1,16 +1,20 @@
-import {useEffect, useRef, useState} from 'react';
+'use client'
+import {Dispatch, SetStateAction, useEffect, useRef, useState} from 'react';
 import { addSize } from '@/utils/sizeServices';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import { Form } from 'react-bootstrap';
+import LoadingOverlay from "@/components/reuse/loading.overlay";
+
 interface ModalSizeProps {
     show: boolean;
     handleClose: () => void;
+    setOriginSize:  Dispatch<SetStateAction<ISize[]>> ;
 }
 
-function ModalSize({ show, handleClose }: ModalSizeProps) {
-    const [size, setSize] = useState('');
+function ModalSize({ show, handleClose, setOriginSize }: ModalSizeProps) {
+    const [size, setSize] = useState<string>('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const popupRef = useRef<HTMLDivElement>(null); // Tạo ref để tham chiếu đến modal
     const [isVisible, setIsVisible] = useState(false); // Trạng thái kiểm soát animation
 
@@ -44,14 +48,26 @@ function ModalSize({ show, handleClose }: ModalSizeProps) {
 
     const handleSubmit = async () => {
         if (size.trim().length > 0) {
+            setLoading(true);
             try {
-                await addSize(size);
-                toast.success('Thêm size thành công!');
-                setSize('');
-                handleClose();
+                const req = await addSize(size);
+                if(req){
+                    console.log(">>req create size", req)
+                    const data = req.data
+                    setOriginSize(prev => [
+                        ...prev,
+                        data
+                    ])
+                    toast.success('Thêm size thành công!');
+                    setSize('');
+                    setError('')
+                    handleClose();
+                }
             } catch (error) {
                 toast.error('Có lỗi xảy ra khi thêm size!');
                 console.error(error);
+            } finally {
+                setLoading(false)
             }
         } else {
             setError('Vui lòng nhập size');
@@ -61,6 +77,7 @@ function ModalSize({ show, handleClose }: ModalSizeProps) {
 
     return (
         <>
+            {loading && (<LoadingOverlay/>)}
             <div
                 className={`fixed inset-0 flex items-center justify-center transition-colors duration-200
                 ${isVisible ? 'visible bg-black bg-opacity-50 z-50' : 'invisible'}`}
@@ -70,49 +87,38 @@ function ModalSize({ show, handleClose }: ModalSizeProps) {
                     className={`bg-white rounded-lg shadow-lg w-full max-w-md mx-auto transition-all duration-200
                     ${show ? 'scale-100 opacity-100' : 'scale-125 opacity-0'}`}
                 >
-                    <div className='border-b px-4 py-3 flex justify-between items-center'>
+                    <div className='border-b px-4 py-3 flex justify-center items-center'>
                         <h2 className='text-lg font-medium'>Thêm Size Mới</h2>
-                        <button onClick={handleClose} className='text-gray-500 hover:text-gray-700 focus:outline-none'>
-                            ✖
-                        </button>
+                        {/*<button onClick={handleClose} className='text-gray-500 hover:text-gray-700 focus:outline-none'>*/}
+                        {/*    ✖*/}
+                        {/*</button>*/}
                     </div>
                     <div className='p-4'>
                         <Form>
                             <Form.Group className='mb-3' controlId='formBasicEmail'>
-                                <Form.Label>Size</Form.Label>
                                 <input
                                     type='size'
                                     id='size'
                                     name='size'
                                     placeholder='Nhập size'
-                                    className='w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                                    autoFocus
+                                    className='w-full px-4 py-2 border hover:border-gray-400 rounded-md focus:shadow-md focus:shadow-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 transition-all placeholder:transition placeholder:translate-x-0 focus:placeholder:translate-x-2 '
                                     onChange={(e) => setSize(e.target.value)}
                                 />
+                                {/*{error && (<p className='text-red-600'>{error}</p>)}*/}
                             </Form.Group>
                         </Form>
                     </div>
-                    <div className='border-t px-4 py-3 flex justify-end'>
+                    <div className='px-4 py-3 flex justify-end'>
                         <button
                             onClick={handleSubmit}
-                            className='px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none'
+                            className='px-4 py-2 font-medium bg-indigo-100 text-indigo-800 rounded-md hover:shadow-md hover:shadow-indigo-400 focus:outline-none transition-all'
                         >
                             Thêm
                         </button>
                     </div>
                 </div>
             </div>
-            <ToastContainer
-                position='top-right'
-                autoClose={3000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme='light'
-            />
         </>
     );
 }

@@ -22,8 +22,10 @@ interface IProduct {
 interface ISize {
     _id: string;
     size: string;
-    price: number;
-    isSelected: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    deleted: Date;
+    __v: number;
 }
 
 interface ICategory {
