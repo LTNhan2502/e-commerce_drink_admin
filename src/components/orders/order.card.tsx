@@ -2,7 +2,7 @@
 
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import Image from "next/image";
-import { useState } from "react";
+import React, { useState } from "react";
 import OrdersModal from "@/components/orders/orders.modal";
 import {IoAddCircleOutline} from "react-icons/io5";
 
@@ -23,9 +23,9 @@ const ManageOrders = () => {
     });
 
     return (
-        <div className="px-3 py-2">
+        <div className="px-5 py-4">
             {/* Thông tin chung */}
-            <div className="rounded-md p-3 bg-white shadow-sm">
+            <div className="rounded-md px-6 py-5 bg-white shadow-sm">
                 <div className="flex justify-between items-center">
                     <div>
                         <h3 className="font-bold text-2xl">Đơn hàng</h3>
@@ -42,23 +42,27 @@ const ManageOrders = () => {
                 </div>
 
                 {/* Tìm kiếm */}
-                <div className="flex flex-wrap mt-3 gap-3">
-                    <input
-                        type="text"
-                        className="border rounded-md px-3 py-2 w-full md:w-1/4 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all placeholder:transition placeholder:translate-x-0 focus:placeholder:translate-x-2"
-                        placeholder="Tên khách"
-                    />
-                    <input
-                        type="number"
-                        className="border rounded-md px-3 py-2 w-full md:w-1/6 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all placeholder:transition placeholder:translate-x-0 focus:placeholder:translate-x-2"
-                        placeholder="Số bàn"
-                    />
-                    <select className="border rounded-md px-3 py-2 w-full md:w-1/4 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all">
-                        <option value="">Trạng thái</option>
-                        <option value="pending">Đang chờ</option>
-                        <option value="completed">Hoàn thành</option>
-                        <option value="cancelled">Đã hủy</option>
-                    </select>
+                <div className='mt-6'>
+                    <p className='font-medium mb-2 text-xl'>Bộ lọc</p>
+                    <div className="flex flex-wrap gap-3">
+                        <input
+                            type="text"
+                            className="border rounded-md px-3 py-2 w-full md:w-1/4 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all placeholder:transition placeholder:translate-x-0 focus:placeholder:translate-x-2"
+                            placeholder="Tên khách"
+                        />
+                        <input
+                            type="number"
+                            className="border rounded-md px-3 py-2 w-full md:w-1/6 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all placeholder:transition placeholder:translate-x-0 focus:placeholder:translate-x-2"
+                            placeholder="Số bàn"
+                        />
+                        <select
+                            className="border rounded-md px-3 py-2 w-full md:w-1/4 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all">
+                            <option value="">Trạng thái</option>
+                            <option value="pending">Đang chờ</option>
+                            <option value="completed">Hoàn thành</option>
+                            <option value="cancelled">Đã hủy</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 

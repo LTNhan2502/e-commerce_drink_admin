@@ -1,4 +1,5 @@
 import {Metadata} from "next";
+import MenuTable from "@/components/menu/menu.table";
 
 export const metadata: Metadata = {
     title: "Danh sách sản phẩm",
@@ -7,7 +8,7 @@ export const metadata: Metadata = {
 
 const AdminMenu = () => {
     return(
-        <>Menu</>
+        <MenuTable/>
     )
 }
 

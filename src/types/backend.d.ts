@@ -5,18 +5,29 @@ interface IFormData {
 
 interface IProduct {
     _id: string;
-    category_id: Array<string>;
+    category_id: string;
     size_id: Array<string>;
     topping_id: Array<string>;
     createdAt: Date;
     updatedAt: Date;
     deleted: boolean;
     name: string;
-    size: Array<ISize>;
+    size: Array<IMenuSize>;
     images: Array<string>;
     isBestSeller: boolean;
     isOutOfStock: boolean;
     __v: number;
+}
+
+interface IProductWithImage extends IProduct{
+    imageURL?: string;
+}
+
+interface IMenuSize {
+    _id: string;
+    size: string;
+    price: number;
+    isSelected: boolean;
 }
 
 interface ISize {
