@@ -1,14 +1,14 @@
-'use client'
-import {Dispatch, SetStateAction, useEffect, useRef, useState} from 'react';
+'use client';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { addSize } from '@/utils/sizeServices';
 import { toast } from 'react-toastify';
 import { Form } from 'react-bootstrap';
-import LoadingOverlay from "@/components/reuse/loading.overlay";
+import LoadingOverlay from '@/components/reuse/loading.overlay';
 
 interface ModalSizeProps {
     show: boolean;
     handleClose: () => void;
-    setOriginSize:  Dispatch<SetStateAction<ISize[]>> ;
+    setOriginSize: Dispatch<SetStateAction<ISize[]>>;
 }
 
 function ModalSize({ show, handleClose, setOriginSize }: ModalSizeProps) {
@@ -50,24 +50,20 @@ function ModalSize({ show, handleClose, setOriginSize }: ModalSizeProps) {
         if (size.trim().length > 0) {
             setLoading(true);
             try {
-                const req = await addSize(size);
-                if(req){
-                    console.log(">>req create size", req)
-                    const data = req.data
-                    setOriginSize(prev => [
-                        ...prev,
-                        data
-                    ])
+                const res = await addSize(size);
+                if (res) {
+                    const data = res.data;
+                    setOriginSize((prev) => [...prev, data]);
                     toast.success('Thêm size thành công!');
                     setSize('');
-                    setError('')
+                    setError('');
                     handleClose();
                 }
             } catch (error) {
                 toast.error('Có lỗi xảy ra khi thêm size!');
                 console.error(error);
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
         } else {
             setError('Vui lòng nhập size');
@@ -77,7 +73,7 @@ function ModalSize({ show, handleClose, setOriginSize }: ModalSizeProps) {
 
     return (
         <>
-            {loading && (<LoadingOverlay/>)}
+            {loading && <LoadingOverlay />}
             <div
                 className={`fixed inset-0 flex items-center justify-center transition-colors duration-200
                 ${isVisible ? 'visible bg-black bg-opacity-50 z-50' : 'invisible'}`}
@@ -89,9 +85,6 @@ function ModalSize({ show, handleClose, setOriginSize }: ModalSizeProps) {
                 >
                     <div className='border-b px-4 py-3 flex justify-center items-center'>
                         <h2 className='text-lg font-medium'>Thêm Size Mới</h2>
-                        {/*<button onClick={handleClose} className='text-gray-500 hover:text-gray-700 focus:outline-none'>*/}
-                        {/*    ✖*/}
-                        {/*</button>*/}
                     </div>
                     <div className='p-4'>
                         <Form>

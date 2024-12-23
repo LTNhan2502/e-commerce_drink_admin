@@ -10,9 +10,14 @@ const addSize = async (size) => {
    return res.data;
 };
 
+const updateSize = async (id, size) => {
+   const res = await instance.patch(`/size/${id}`, { size });
+   return res.data;
+};
+
 const deleteSize = async (id) => {
    const res = await instance.delete(`/size/${id}`);
    return res.data;
 }
 
-export { getSize, addSize, deleteSize };
+export { getSize, addSize, updateSize, deleteSize };
