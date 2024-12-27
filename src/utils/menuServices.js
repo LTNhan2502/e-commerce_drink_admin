@@ -10,4 +10,9 @@ const getOneMenu = async (id) => {
     return res.data;
 };
 
-export { getMenu, getOneMenu };
+const updateMenu = async (id, data) => {
+    const res = await instance.patch(`/menu/${id}`, data);
+    return res.data;
+}
+
+export { getMenu, getOneMenu, updateMenu };

@@ -24,10 +24,10 @@ interface IProductWithImage extends IProduct{
 }
 
 interface IMenuSize {
-    _id: string;
+    _id?: string;
     size: string;
     price: number;
-    isSelected: boolean;
+    isSelected?: boolean;
 }
 
 interface ISize {

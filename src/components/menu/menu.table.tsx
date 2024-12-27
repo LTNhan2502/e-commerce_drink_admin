@@ -9,6 +9,7 @@ import {RiDeleteBin6Line} from "react-icons/ri";
 import ToggleButton from "@/components/reuse/toggle.button";
 import LoadingOverlay from "@/components/reuse/loading.overlay";
 import {getFile} from "@/utils/fileServices";
+import Link from "next/link";
 
 const MenuTable = () => {
     const [menu, setMenu] = useState<IProduct[]>([])
@@ -100,18 +101,12 @@ const MenuTable = () => {
                         <input
                             type="text"
                             className="border rounded-md px-3 py-2 w-full md:w-1/4 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all placeholder:transition placeholder:translate-x-0 focus:placeholder:translate-x-2"
-                            placeholder="Tên khách"
-                        />
-                        <input
-                            type="number"
-                            className="border rounded-md px-3 py-2 w-full md:w-1/6 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all placeholder:transition placeholder:translate-x-0 focus:placeholder:translate-x-2"
-                            placeholder="Số bàn"
+                            placeholder="Tên sản phẩm"
                         />
                         <select className="border rounded-md px-3 py-2 w-full md:w-1/4 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all">
                             <option value="">Trạng thái</option>
-                            <option value="pending">Đang chờ</option>
-                            <option value="completed">Hoàn thành</option>
-                            <option value="cancelled">Đã hủy</option>
+                            <option value="pending">Còn hàng</option>
+                            <option value="completed">Hết hàng</option>
                         </select>
                     </div>
                 </div>
@@ -129,6 +124,7 @@ const MenuTable = () => {
                             <th className="px-6 py-4">Sản phẩm</th>
                             <th className="px-6 py-4">Category</th>
                             <th className="px-6 py-4">Tồn kho</th>
+                            <th className="px-6 py-4">Best seller</th>
                             <th className="px-6 py-4"></th>
                         </tr>
                     </thead>
@@ -142,6 +138,7 @@ const MenuTable = () => {
                     ) : (
                     menu.map((menu, index) => (
                         <tr key={index} className="border-b">
+                            {/* Tên, giá, ảnh */}
                             <td className="flex items-center px-6 py-4">
                                 <Image
                                     src={imageURLs[menu.images[0]]}
@@ -155,6 +152,8 @@ const MenuTable = () => {
                                     <div className="text-gray-500">{menu.size[0].price}</div>
                                 </div>
                             </td>
+
+                            {/* Category */}
                             <td className="px-6 py-4">
                                 <div className="font-medium text-gray-800">
                                     {category.map(category =>(
@@ -169,15 +168,25 @@ const MenuTable = () => {
                                     ))}
                                 </div>
                             </td>
+
+                            {/* Tồn kho */}
                             <td className="px-6 py-4 ">
                                 {/*<ToggleButton enabled={enabled} setEnabled={setEnabled}/>*/}
-                                <ToggleButton/>
+                                <ToggleButton enabled={!menu.isOutOfStock}/>
+                            </td>
+
+                            {/* Best seller */}
+                            <td className="px-6 py-4 ">
+                                {/*<ToggleButton enabled={enabled} setEnabled={setEnabled}/>*/}
+                                <ToggleButton enabled={menu.isBestSeller}/>
                             </td>
                             <td className="px-6 py-4 text-blue-500 hover:text-blue-700 cursor-pointer flex justify-end">
-                                <button
-                                    className="rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100">
+                                <Link
+                                    className="rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100"
+                                    href={`/menu/${menu._id}`}
+                                >
                                     <LiaEditSolid className="text-2xl"/>
-                                </button>
+                                </Link>
                                 <button
                                     className="ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100"
                                     // onClick={() => handleOpenSizeModal(item)}

@@ -1,10 +1,10 @@
 'use client'
-
-import { AiOutlinePlusCircle } from "react-icons/ai";
 import Image from "next/image";
 import React, { useState } from "react";
 import OrdersModal from "@/components/orders/orders.modal";
 import {IoAddCircleOutline} from "react-icons/io5";
+
+export
 
 const ManageOrders = () => {
     const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
@@ -19,7 +19,7 @@ const ManageOrders = () => {
         note: "Ít đá, thêm đường",
         handler: "Admin01",
         time: "18:30 - 19/12/2024",
-        status: "pending",
+        status: "Đang chờ",
     });
 
     return (
@@ -103,8 +103,8 @@ const ManageOrders = () => {
                                     {(order.price * order.quantity).toLocaleString()} VNĐ
                                 </p>
                                 <p>
-                                    <span className="font-semibold">Trạng thái: </span>
-                                    {order.status}
+                                    <span className="flex items-center justify-center text-sm text-white rounded-full px-3 py-1 font-semibold bg-indigo-800">{order.status}</span>
+
                                 </p>
                                 <p>
                                     <span className="font-semibold">Thời gian: </span>
