@@ -10,13 +10,20 @@ import ToggleButton from "@/components/reuse/toggle.button";
 import LoadingOverlay from "@/components/reuse/loading.overlay";
 import {getFile} from "@/utils/fileServices";
 import Link from "next/link";
+import {toast} from "react-toastify";
+import AddMenuModal from "@/components/menu/add.menu.modal";
 
 const MenuTable = () => {
+    const [isOpen, setIsOpen] = useState(false);
     const [menu, setMenu] = useState<IProduct[]>([])
     const [category, setCategory] = useState<ICategory[]>([]);
     const [imageURLs, setImageURLs] = useState<Record<string, string>>({})
-    // const [enabled, setEnabled] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    // Hàm thêm
+    const handleAddMenu = () => {
+        toast.info("Hi")
+    }
 
     // Fetch data menu, category
     useEffect(() => {
@@ -77,6 +84,7 @@ const MenuTable = () => {
 
         <div className="px-5 py-4">
             {loading && <LoadingOverlay/>}
+            <AddMenuModal show={isOpen} handleClose={() => setIsOpen(false)} handleAddMenu={handleAddMenu}/>
             {/* Thông tin chung */}
             <div className="rounded-md px-6 py-5 bg-white shadow-sm">
                 <div className="flex justify-between items-center">
@@ -87,7 +95,7 @@ const MenuTable = () => {
                     <div>
                         <button
                             className="bg-white border border-gray-300 text-indigo-500 hover:bg-indigo-800 hover:text-white rounded-full p-2 shadow transition-all"
-
+                            onClick={() => setIsOpen(true)}
                         >
                             <IoAddCircleOutline className="text-2xl"/>
                         </button>

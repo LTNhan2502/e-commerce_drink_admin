@@ -1,10 +1,9 @@
 'use client'
-import React, {MouseEventHandler, useState} from "react";
-import LoadingOverlay from "@/components/reuse/loading.overlay";
+import React, {MouseEventHandler} from "react";
 
 interface IToggle {
     enabled: boolean | undefined;
-    setEnabled: MouseEventHandler<HTMLDivElement>;
+    setEnabled?: MouseEventHandler<HTMLDivElement>;
 }
 
 const Toggle: React.FC<IToggle> = ({ enabled, setEnabled }) => {

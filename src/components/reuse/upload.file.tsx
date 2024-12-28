@@ -68,12 +68,13 @@ const UploadImage: React.FC<IUploadImage> = ({ setFile, image, setImage }) => {
                         <p className='text-sm text-gray-400'>Hoặc</p>
                         <button
                             className='rounded-md font-medium bg-indigo-200 text-indigo-800 px-3 py-1 hover:shadow-md hover:shadow-indigo-400 transition-all'
-                            onClick={() => document.getElementById('file-upload')?.click()}
+                            onClick={() => document.getElementById('profile-image')?.click()}
                         >Tìm ảnh</button>
                     </div>
                     <input
                         type="file"
-                        id="file-upload"
+                        id="profile-image"
+                        name='profile-image'
                         className="hidden"
                         accept="image/*"
                         onChange={handleFileChange}

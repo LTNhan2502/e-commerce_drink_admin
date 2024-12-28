@@ -1,7 +1,7 @@
 import instance from "./axios.config";
 
 const uploadFile = async (file) => {
-    const res = await instance.post('/upload', file);
+    const res = await instance.post('/upload', { file });
     return res.data;
 };
 
