@@ -317,13 +317,19 @@ const DetailMenuPage = ({ params }: { params: { id: string } }) => {
                             <AiOutlineSave size={24}/>
                         </button>
                         <div className="">
-                            <input
-                                type="text"
-                                placeholder="Tên sản phẩm"
-                                value={productName}
-                                onChange={handleNameChange}
-                                className='w-full px-3 py-2 border rounded-md hover:border-gray-400 focus:ring-1 focus:outline-none focus:ring-indigo-500 focus:shadow-md focus:shadow-indigo-400 transition-all placeholder:transition placeholder:translate-x-0 focus:placeholder:translate-x-2'
-                            />
+                            <label className='relative'>
+                                <input
+                                    type="text"
+                                    required
+                                    value={productName}
+                                    onChange={handleNameChange}
+                                    className="border rounded-md w-full px-3 py-2 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all peer"
+                                />
+                                <span
+                                    className='absolute rounded-md top-0 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75'>
+                                    Tên sản phẩm
+                                </span>
+                            </label>
                         </div>
                         <div className="mt-8 flex justify-between">
                             <select

@@ -42,28 +42,48 @@ const ManageOrders = () => {
                 </div>
 
                 {/* Tìm kiếm */}
-                <div className='mt-6'>
-                    <p className='font-medium mb-2 text-xl'>Bộ lọc</p>
-                    <div className="flex flex-wrap gap-3">
-                        <input
-                            type="text"
-                            className="border rounded-md px-3 py-2 w-full md:w-1/4 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all placeholder:transition placeholder:translate-x-0 focus:placeholder:translate-x-2"
-                            placeholder="Tên khách"
-                        />
-                        <input
-                            type="number"
-                            className="border rounded-md px-3 py-2 w-full md:w-1/6 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all placeholder:transition placeholder:translate-x-0 focus:placeholder:translate-x-2"
-                            placeholder="Số bàn"
-                        />
+                <div className="mt-6">
+                    <p className="font-medium mb-4 text-xl">Bộ lọc</p>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        {/* Input Tên khách */}
+                        <label className="relative">
+                            <input
+                                type="text"
+                                required
+                                className="border rounded-md w-full px-3 py-2 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all peer"
+                            />
+                            <span className="absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75">
+                                Tên khách
+                            </span>
+                        </label>
+
+                        {/* Input Số bàn */}
+                        <label className="relative">
+                            <input
+                                type="number"
+                                required
+                                className="border rounded-md w-full px-3 py-2 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all peer"
+                            />
+                            <span className="absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75">
+                                Số bàn
+                            </span>
+                        </label>
+
+                        {/* Select Trạng thái */}
                         <select
-                            className="border rounded-md px-3 py-2 w-full md:w-1/4 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all">
+                            className="border rounded-md px-3 py-2 w-full hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all"
+                        >
                             <option value="">Trạng thái</option>
                             <option value="pending">Đang chờ</option>
                             <option value="completed">Hoàn thành</option>
                             <option value="cancelled">Đã hủy</option>
                         </select>
+
+                        {/* Nội dung trống để giữ layout */}
+                        <div></div>
                     </div>
                 </div>
+
             </div>
 
             {/* Danh sách đơn hàng */}
@@ -103,7 +123,8 @@ const ManageOrders = () => {
                                     {(order.price * order.quantity).toLocaleString()} VNĐ
                                 </p>
                                 <p>
-                                    <span className="flex items-center justify-center text-sm text-white rounded-full px-3 py-1 font-semibold bg-indigo-800">{order.status}</span>
+                                    <span
+                                        className="flex items-center justify-center text-sm text-white rounded-full px-3 py-1 font-semibold bg-indigo-800">{order.status}</span>
 
                                 </p>
                                 <p>

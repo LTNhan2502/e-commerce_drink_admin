@@ -10,7 +10,6 @@ import ToggleButton from "@/components/reuse/toggle.button";
 import LoadingOverlay from "@/components/reuse/loading.overlay";
 import {getFile} from "@/utils/fileServices";
 import Link from "next/link";
-import {toast} from "react-toastify";
 import AddMenuModal from "@/components/menu/add.menu.modal";
 
 const MenuTable = () => {
@@ -19,11 +18,6 @@ const MenuTable = () => {
     const [category, setCategory] = useState<ICategory[]>([]);
     const [imageURLs, setImageURLs] = useState<Record<string, string>>({})
     const [loading, setLoading] = useState(false);
-
-    // Hàm thêm
-    const handleAddMenu = () => {
-        toast.info("Hi")
-    }
 
     // Fetch data menu, category
     useEffect(() => {
@@ -84,7 +78,7 @@ const MenuTable = () => {
 
         <div className="px-5 py-4">
             {loading && <LoadingOverlay/>}
-            <AddMenuModal show={isOpen} handleClose={() => setIsOpen(false)} handleAddMenu={handleAddMenu}/>
+            <AddMenuModal show={isOpen} handleClose={() => setIsOpen(false)} category={category}/>
             {/* Thông tin chung */}
             <div className="rounded-md px-6 py-5 bg-white shadow-sm">
                 <div className="flex justify-between items-center">
@@ -104,19 +98,34 @@ const MenuTable = () => {
 
                 {/* Tìm kiếm */}
                 <div className='mt-6'>
-                    <p className='font-medium mb-2 text-xl'>Bộ lọc</p>
-                    <div className="flex flex-wrap gap-3">
-                        <input
-                            type="text"
-                            className="border rounded-md px-3 py-2 w-full md:w-1/4 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all placeholder:transition placeholder:translate-x-0 focus:placeholder:translate-x-2"
-                            placeholder="Tên sản phẩm"
-                        />
-                        <select className="border rounded-md px-3 py-2 w-full md:w-1/4 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all">
+                    <p className='font-medium mb-4 text-xl'>Bộ lọc</p>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        {/* Input Tên sản phẩm */}
+                        <label className="relative">
+                            <input
+                                type="text"
+                                required
+                                className="border rounded-md px-3 py-2 w-full hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all peer"
+                            />
+                            <span className="absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75">
+                                Tên sản phẩm
+                            </span>
+                        </label>
+
+                        {/* Select Trạng thái */}
+                        <select
+                            className="border rounded-md px-3 py-2 w-full hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all"
+                        >
                             <option value="">Trạng thái</option>
                             <option value="pending">Còn hàng</option>
                             <option value="completed">Hết hàng</option>
                         </select>
+
+                        {/* Nội dung trống để giữ layoutt */}
+                        <div></div>
+                        <div></div>
                     </div>
+
                 </div>
             </div>
 
@@ -127,14 +136,14 @@ const MenuTable = () => {
                     <h3 className='font-bold text-2xl text-indigo-800'>Bảng Menu</h3>
                 </div>
                 <table className="w-full bg-white text-left text-sm text-gray-800 rounded-md mt-7 table-auto">
-                    <thead  className="border-b border-gray-300">
-                        <tr className="w-full border-b text-left text-xs font-medium text-gray-500 uppercase">
-                            <th className="px-6 py-4">Sản phẩm</th>
-                            <th className="px-6 py-4">Category</th>
-                            <th className="px-6 py-4">Tồn kho</th>
-                            <th className="px-6 py-4">Best seller</th>
-                            <th className="px-6 py-4"></th>
-                        </tr>
+                    <thead className="border-b border-gray-300">
+                    <tr className="w-full border-b text-left text-xs font-medium text-gray-500 uppercase">
+                        <th className="px-6 py-4">Sản phẩm</th>
+                        <th className="px-6 py-4">Category</th>
+                        <th className="px-6 py-4">Tồn kho</th>
+                        <th className="px-6 py-4">Best seller</th>
+                        <th className="px-6 py-4"></th>
+                    </tr>
                     </thead>
                     <tbody>
                     {menu.length === 0 ? (

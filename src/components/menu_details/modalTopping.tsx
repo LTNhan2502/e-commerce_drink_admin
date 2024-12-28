@@ -1,6 +1,6 @@
 'use client';
 import { createTopping } from '@/utils/toppingClient';
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { Form } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import LoadingOverlay from "@/components/reuse/loading.overlay";
@@ -100,27 +100,39 @@ function ModalTopping({ show, handleClose, setOriginTopping }: ModalToppingProps
                     </div>
                     <div className='p-4'>
                         <Form>
-                            <Form.Group className='mb-3' controlId='formBasicEmail'>
-                                <input
-                                    type='name'
-                                    id='name'
-                                    name='name'
-                                    placeholder='Nhập topping'
-                                    autoFocus
-                                    className='mb-5 w-full px-4 py-2 border hover:border-gray-400 rounded-md focus:shadow-md focus:shadow-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 transition-all placeholder:transition placeholder:translate-x-0 focus:placeholder:translate-x-2 '
-                                    onChange={(e) => setTopping({ ...topping, name: e.target.value })}
-                                />
+                            <Form.Group className="mb-3" controlId="formBasicEmail">
+                                {/* Input Tên Topping */}
+                                <label className="relative block mb-4">
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        name="name"
+                                        autoFocus
+                                        required
+                                        onChange={(e) => setTopping({ ...topping, name: e.target.value })}
+                                        className="border rounded-md px-3 py-2 w-full hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all peer"
+                                    />
+                                    <span className="absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75">
+                                        Tên Topping
+                                    </span>
+                                </label>
 
-                                <input
-                                    type='price'
-                                    id='price'
-                                    name='price'
-                                    placeholder='Nhập price'
-                                    autoFocus
-                                    className='mv-5 w-full px-4 py-2 border hover:border-gray-400 rounded-md focus:shadow-md focus:shadow-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 transition-all placeholder:transition placeholder:translate-x-0 focus:placeholder:translate-x-2 '
-                                    onChange={(e) => setTopping({ ...topping, price: e.target.value })}
-                                />
+                                {/* Input Giá */}
+                                <label className="relative block">
+                                    <input
+                                        type="number"
+                                        id="price"
+                                        name="price"
+                                        required
+                                        onChange={(e) => setTopping({ ...topping, price: e.target.value })}
+                                        className="border rounded-md px-3 py-2 w-full hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all peer"
+                                    />
+                                    <span className="absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75">
+                                        Giá
+                                    </span>
+                                </label>
                             </Form.Group>
+
                         </Form>
                     </div>
                     <div className='border-t px-4 py-3 flex justify-end'>

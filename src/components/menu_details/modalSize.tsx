@@ -1,5 +1,5 @@
 'use client';
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { addSize } from '@/utils/sizeServices';
 import { toast } from 'react-toastify';
 import { Form } from 'react-bootstrap';
@@ -89,15 +89,20 @@ function ModalSize({ show, handleClose, setOriginSize }: ModalSizeProps) {
                     <div className='p-4'>
                         <Form>
                             <Form.Group className='mb-3' controlId='formBasicEmail'>
-                                <input
-                                    type='size'
-                                    id='size'
-                                    name='size'
-                                    placeholder='Nhập size'
-                                    autoFocus
-                                    className='w-full px-4 py-2 border hover:border-gray-400 rounded-md focus:shadow-md focus:shadow-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 transition-all placeholder:transition placeholder:translate-x-0 focus:placeholder:translate-x-2 '
-                                    onChange={(e) => setSize(e.target.value)}
-                                />
+                                <label className="relative">
+                                    <input
+                                        type='size'
+                                        id='size'
+                                        name='size'
+                                        autoFocus
+                                        required
+                                        onChange={(e) => setSize(e.target.value)}
+                                        className="border rounded-md px-3 py-2 w-full hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all peer"
+                                    />
+                                    <span className="absolute rounded-md top-0 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75">
+                                        Tên Size
+                                    </span>
+                                </label>
                                 {/*{error && (<p className='text-red-600'>{error}</p>)}*/}
                             </Form.Group>
                         </Form>
