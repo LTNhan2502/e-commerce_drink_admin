@@ -10,7 +10,6 @@ import {getTopping} from "@/utils/toppingClient";
 import {AiOutlineSave} from "react-icons/ai";
 import {toast} from "react-toastify";
 import {getCategory} from "@/utils/categoryServices";
-import instance from "@/utils/axios.config";
 
 // export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
 //     const { id } = params;
@@ -129,14 +128,10 @@ const DetailMenuPage = ({ params }: { params: { id: string } }) => {
 
             try {
                 setLoading(true)
-                const resUpload = await instance.post('/upload', formData, {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    }
-                })
+                const resUpload = await uploadFile(formData)
                 const updatedMenu = {
                     ...menu,
-                    images: resUpload.data.data.data.publicId
+                    images: resUpload.data.data.publicId
                 }
                 await updateMenu(params.id, updatedMenu)
                 toast.success("Lưu thành công")

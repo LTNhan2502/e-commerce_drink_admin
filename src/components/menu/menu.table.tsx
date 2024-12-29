@@ -73,12 +73,14 @@ const MenuTable = () => {
         fetchImageURLs();
     }, [menu]);
 
-
+    useEffect(() => {
+        console.log(menu)
+    }, [menu]);
     return (
 
         <div className="px-5 py-4">
             {loading && <LoadingOverlay/>}
-            <AddMenuModal show={isOpen} handleClose={() => setIsOpen(false)} category={category}/>
+            <AddMenuModal show={isOpen} handleClose={() => setIsOpen(false)} category={category} setOriginMenu={setMenu}/>
             {/* Thông tin chung */}
             <div className="rounded-md px-6 py-5 bg-white shadow-sm">
                 <div className="flex justify-between items-center">
@@ -166,7 +168,7 @@ const MenuTable = () => {
                                 />
                                 <div className="ml-3">
                                     <div className="font-medium text-gray-800">{menu.name}</div>
-                                    <div className="text-gray-500">{menu.size[0].price}</div>
+                                    <div className="text-gray-500">{menu?.size[0]?.price}</div>
                                 </div>
                             </td>
 
