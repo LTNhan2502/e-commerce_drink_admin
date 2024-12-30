@@ -20,4 +20,9 @@ const updateMenu = async (id, data) => {
     return res.data;
 }
 
-export { getMenu, getOneMenu, addMenu, updateMenu };
+const deleteMenu = async (id) => {
+    const res = await instance.delete(`/menu/${id}`);
+    return res.data;
+}
+
+export { getMenu, getOneMenu, addMenu, updateMenu, deleteMenu };

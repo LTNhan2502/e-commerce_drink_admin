@@ -1,6 +1,6 @@
 'use client'
 import React, {useEffect, useState} from "react";
-import {getMenu} from "@/utils/menuServices";
+import {deleteMenu, getMenu} from "@/utils/menuServices";
 import {getCategory} from "@/utils/categoryServices";
 import {IoAddCircleOutline} from "react-icons/io5";
 import Image from "next/image";
@@ -11,13 +11,34 @@ import LoadingOverlay from "@/components/reuse/loading.overlay";
 import {getFile} from "@/utils/fileServices";
 import Link from "next/link";
 import AddMenuModal from "@/components/menu/add.menu.modal";
+import {toast} from "react-toastify";
+import DeleteModal from "@/components/reuse/delete.modal";
 
 const MenuTable = () => {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false);
+    const [isOpenDeleteModal, setIsOpenDeleteModal] = useState<boolean>(false);
     const [menu, setMenu] = useState<IProduct[]>([])
     const [category, setCategory] = useState<ICategory[]>([]);
     const [imageURLs, setImageURLs] = useState<Record<string, string>>({})
     const [loading, setLoading] = useState(false);
+
+    // Hàm xác nhận xoá
+    const handleDeleteMenu = async (id: string) => {
+        setLoading(true);
+        try {
+            const res = await deleteMenu(id)
+
+            if(res){
+                setMenu((prev) => prev.filter(item => item._id !== id))
+                toast.success("Xoá thành công")
+            }
+        }catch(error){
+            console.log("Failed to delete", error)
+        }finally {
+            setIsOpenDeleteModal(false)
+            setLoading(false)
+        }
+    }
 
     // Fetch data menu, category
     useEffect(() => {
@@ -80,7 +101,7 @@ const MenuTable = () => {
 
         <div className="px-5 py-4">
             {loading && <LoadingOverlay/>}
-            <AddMenuModal show={isOpen} handleClose={() => setIsOpen(false)} category={category} setOriginMenu={setMenu}/>
+            <AddMenuModal show={isOpenAddModal} handleClose={() => setIsOpenAddModal(false)} category={category} setOriginMenu={setMenu}/>
             {/* Thông tin chung */}
             <div className="rounded-md px-6 py-5 bg-white shadow-sm">
                 <div className="flex justify-between items-center">
@@ -91,7 +112,7 @@ const MenuTable = () => {
                     <div>
                         <button
                             className="bg-white border border-gray-300 text-indigo-500 hover:bg-indigo-800 hover:text-white rounded-full p-2 shadow transition-all"
-                            onClick={() => setIsOpen(true)}
+                            onClick={() => setIsOpenAddModal(true)}
                         >
                             <IoAddCircleOutline className="text-2xl"/>
                         </button>
@@ -208,10 +229,11 @@ const MenuTable = () => {
                                 </Link>
                                 <button
                                     className="ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100"
-                                    // onClick={() => handleOpenSizeModal(item)}
+                                    onClick={() => setIsOpenDeleteModal(true)}
                                 >
                                     <RiDeleteBin6Line className="text-2xl"/>
                                 </button>
+                                <DeleteModal show={isOpenDeleteModal} handleClose={() => setIsOpenDeleteModal(false)} selectedObject={{ name: menu.name, id: menu._id }} selectType="menu" onConfirm={() => handleDeleteMenu(menu._id)}/>
                             </td>
                         </tr>
                     ))

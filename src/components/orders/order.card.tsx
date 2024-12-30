@@ -3,25 +3,42 @@ import Image from "next/image";
 import React, {useEffect, useState} from "react";
 import OrdersModal from "@/components/orders/orders.modal";
 import {IoAddCircleOutline} from "react-icons/io5";
-import {getOrders} from "@/utils/orderServices";
+import {deleteOrder, getOrders} from "@/utils/orderServices";
 import LoadingOverlay from "@/components/reuse/loading.overlay";
+import {toast} from "react-toastify";
+import DeleteModal from "@/components/reuse/delete.modal";
 
 export
 
 const ManageOrders = () => {
     const [orders, setOrders] = useState<IOrder[]>([]);
     const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
-    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [isOpenDetail, setIsOpenDetail] = useState<boolean>(false);
+    const [isOpenDeleteModal, setIsOpenDeleteModal] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
 
-    // Hàm mở modal
+    // Hàm mở modal detail
     const handleViewDetail = (order: IOrder) => {
-        setIsOpen(true);
+        setIsOpenDetail(true);
         setSelectedOrder(order)
     }
 
-    const handleDeleteOrder = (id: string) => {
-        setOrders((prev) => prev.filter(item => item._id !== id))
+    // Hàm xác nhận xoá order
+    const handleDeleteOrder = async (id: string) => {
+        setLoading(true);
+        try {
+            const res = await deleteOrder(id);
+
+            if(res){
+                setOrders((prev) => prev.filter(item => item._id !== id))
+                toast.success("Xoá thành công")
+            }
+        }catch(error){
+            console.log("Failed to delete order", error)
+            toast.error("Xoá thất bại")
+        }finally {
+            setLoading(false);
+        }
     }
 
     // Fetch all orders
@@ -117,10 +134,12 @@ const ManageOrders = () => {
                             {/* Nút X để đóng */}
                             <button
                                 className="absolute top-2 right-2 text-gray-500 hover:text-red-600 transition"
-                                onClick={() => handleDeleteOrder(order._id)}
+                                onClick={() => setIsOpenDeleteModal(true)}
                             >
                                 ✖
                             </button>
+
+                            <DeleteModal show={isOpenDeleteModal} handleClose={() => setIsOpenDeleteModal(false)} selectedObject={{ name: order.name, id: order._id }} selectType="order" onConfirm={() => handleDeleteOrder(order._id)}/>
 
                             {/* Hình ảnh bên trái */}
                             <div className="relative w-16 h-16 mr-4">
@@ -182,7 +201,7 @@ const ManageOrders = () => {
                 </div>
 
                 {/* Modal chi tiết */}
-                <OrdersModal show={isOpen} handleClose={() => setIsOpen(false)} selectedOrder={selectedOrder} setSelectedOrder={setSelectedOrder}/>
+                <OrdersModal show={isOpenDetail} handleClose={() => setIsOpenDetail(false)} selectedOrder={selectedOrder} setSelectedOrder={setSelectedOrder}/>
             </div>
         </>
     );

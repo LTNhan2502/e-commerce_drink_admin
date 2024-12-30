@@ -59,7 +59,7 @@ function DeleteModal({ show, handleClose, selectedObject, selectType, onConfirm 
                         {/*</button>*/}
                     </div>
                     <div className='p-4'>
-                        Bạn có muốn xoá {selectType === 'size' ? 'size' : 'topping'} <b>{selectedObject?.size || selectedObject?.name}</b> không?
+                        Bạn có muốn xoá {selectType === "order" ? "order của" : ""} <b>{selectedObject?.size || selectedObject?.name}</b> không?
                     </div>
                     <div className='px-4 py-3 flex justify-end'>
                         <button
