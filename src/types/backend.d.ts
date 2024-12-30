@@ -19,10 +19,6 @@ interface IProduct {
     __v: number;
 }
 
-interface IProductWithImage extends IProduct{
-    imageURL?: string;
-}
-
 interface IMenuSize {
     _id?: string;
     size: string;
@@ -49,15 +45,23 @@ interface ICategory {
 }
 
 interface IOrder {
-    customerName: string,
-    product: string,
-    price: number,
-    quantity: number,
-    size: string,
-    topping: string[],
-    note: string,
-    handler: string,
-    time: string,
-    status: string,
+    _id: string;
+    name: string;
+    phone: number;
+    order_details: IOrderDetails[];
+    status: string;
+    deleted: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    __v: number;
+}
+
+interface IOrderDetails {
+    name: string;
+    price: number;
+    quantity: number;
+    size: string;
+    topping: string[];
+    description: string;
 }
 
