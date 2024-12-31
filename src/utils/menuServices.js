@@ -10,8 +10,10 @@ const getOneMenu = async (id) => {
     return res.data;
 };
 
+
+
 const addMenu = async (data) => {
-    const res = await instance.post('/menu', {data});
+    const res = await instance.post('/menu', data);
     return res.data;
 }
 
