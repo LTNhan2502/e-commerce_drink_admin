@@ -1,5 +1,4 @@
 'use client'
-import Image from "next/image";
 import React, {useEffect, useState} from "react";
 import OrdersModal from "@/components/orders/orders.modal";
 import {IoAddCircleOutline} from "react-icons/io5";
@@ -7,6 +6,7 @@ import {deleteOrder, getOrders} from "@/utils/orderServices";
 import LoadingOverlay from "@/components/reuse/loading.overlay";
 import {toast} from "react-toastify";
 import DeleteModal from "@/components/reuse/delete.modal";
+import AddOrderModal from "@/components/orders/add.order.modal";
 
 export
 
@@ -14,6 +14,7 @@ const ManageOrders = () => {
     const [orders, setOrders] = useState<IOrder[]>([]);
     const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
     const [isOpenDetail, setIsOpenDetail] = useState<boolean>(false);
+    const [isOpenAdd, setIsOpenAdd] = useState<boolean>(false);
     const [isOpenDeleteModal, setIsOpenDeleteModal] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -61,6 +62,10 @@ const ManageOrders = () => {
     return (
         <>
             {loading && <LoadingOverlay/>}
+            {/* Modal chi tiết */}
+            <OrdersModal show={isOpenDetail} handleClose={() => setIsOpenDetail(false)} selectedOrder={selectedOrder}/>
+            {/* Modal thêm */}
+            <AddOrderModal show={isOpenAdd} handleClose={() => setIsOpenAdd(false)}/>
             <div className="px-5 py-4">
                 {/* Thông tin chung */}
                 <div className="rounded-md px-6 py-5 bg-white shadow-sm">
@@ -72,7 +77,7 @@ const ManageOrders = () => {
                         <div>
                             <button
                                 className="bg-white border border-gray-300 text-indigo-500 hover:bg-indigo-800 hover:text-white rounded-full p-2 shadow transition-all"
-
+                                onClick={() => setIsOpenAdd(true)}
                             >
                                 <IoAddCircleOutline className="text-2xl"/>
                             </button>
@@ -125,7 +130,7 @@ const ManageOrders = () => {
                 </div>
 
                 {/* Danh sách đơn hàng */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
                     {orders.map((order) => (
                         <div
                             key={order._id}
@@ -141,22 +146,6 @@ const ManageOrders = () => {
 
                             <DeleteModal show={isOpenDeleteModal} handleClose={() => setIsOpenDeleteModal(false)} selectedObject={{ name: order.name, id: order._id }} selectType="order" onConfirm={() => handleDeleteOrder(order._id)}/>
 
-                            {/* Hình ảnh bên trái */}
-                            <div className="relative w-16 h-16 mr-4">
-                                <Image
-                                    src={'https://ui-avatars.com/api/?backgound=c7d2fe&color=3730a3&bold=true'}
-                                    alt="Product"
-                                    className="object-cover h-full w-full rounded-md"
-                                    width={150}
-                                    height={150}
-                                />
-                                {order.order_details.length > 1 && (
-                                    <span className="absolute top-0 right-0 flex justify-center items-center bg-black/50 text-xl text-white font-semibold rounded-md w-full h-full">
-                                        +{order.order_details.length - 1}
-                                    </span>
-                                )}
-                            </div>
-
                             {/* Nội dung bên phải */}
                             <div className="flex flex-col flex-1">
                                 <h2 className="text-md font-semibold text-gray-800">{order.name}</h2>
@@ -164,7 +153,18 @@ const ManageOrders = () => {
                                     <p>
                                         <span className="font-sm text-xs text-gray-500">Tổng: </span>
                                         {order.order_details
-                                            .reduce((total, item) => total + item.price * item.quantity, 0)
+                                            .reduce((total, item) => {
+                                                // Tổng giá sản phẩm chính
+                                                const itemTotal = item.price * item.quantity;
+
+                                                // Tổng giá của topping
+                                                const toppingTotal = item.topping.reduce((toppingSum, topping) => {
+                                                    return toppingSum + topping.price;
+                                                }, 0);
+
+                                                // Cộng tổng giá sản phẩm và topping (topping cũng nhân với số lượng sản phẩm)
+                                                return total + itemTotal + toppingTotal;
+                                            }, 0)
                                             .toLocaleString()} VNĐ
                                     </p>
                                 </div>
@@ -197,11 +197,7 @@ const ManageOrders = () => {
                             </div>
                         </div>
                     ))}
-
                 </div>
-
-                {/* Modal chi tiết */}
-                <OrdersModal show={isOpenDetail} handleClose={() => setIsOpenDetail(false)} selectedOrder={selectedOrder} setSelectedOrder={setSelectedOrder}/>
             </div>
         </>
     );

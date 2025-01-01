@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
+    AiOutlineApartment,
     AiOutlineDashboard,
     AiOutlineMenuFold,
     AiOutlineMenuUnfold,
@@ -15,7 +16,7 @@ const links = [
     { href: '/', label: 'Dashboard', icon: AiOutlineDashboard },
     { href: '/menu', label: 'Menu', icon: AiOutlineProduct },
     { href: '/orders', label: 'Order', icon: AiOutlineShoppingCart },
-    { href: '/menu-details', label: 'Menu Details', icon: AiOutlineProduct },
+    { href: '/menu-details', label: 'Menu Details', icon: AiOutlineApartment },
 ];
 
 const AdminSidebar = () => {

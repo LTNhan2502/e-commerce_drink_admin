@@ -14,7 +14,7 @@ import AddMenuModal from "@/components/menu/add.menu.modal";
 import {toast} from "react-toastify";
 import DeleteModal from "@/components/reuse/delete.modal";
 
-const MenuTable = () => {
+const CategoryTable = () => {
     const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false);
     const [isOpenDeleteModal, setIsOpenDeleteModal] = useState<boolean>(false);
     const [menu, setMenu] = useState<IProduct[]>([])
@@ -134,8 +134,8 @@ const MenuTable = () => {
             <div className="rounded-md px-6 py-5 bg-white shadow-sm">
                 <div className="flex justify-between items-center">
                     <div>
-                        <h3 className="font-bold text-2xl">Sản phẩm</h3>
-                        <h5 className="font-normal">Quản lí sản phẩm</h5>
+                        <h3 className="font-bold text-2xl">Category</h3>
+                        <h5 className="font-normal">Quản lí category</h5>
                     </div>
                     <div>
                         <button
@@ -159,7 +159,7 @@ const MenuTable = () => {
                                 className="border rounded-md px-3 py-2 w-full hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all peer"
                             />
                             <span className="absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75">
-                                Tên sản phẩm
+                                Tên category
                             </span>
                         </label>
 
@@ -204,66 +204,66 @@ const MenuTable = () => {
                             </td>
                         </tr>
                     ) : (
-                    menu.map((menu, index) => (
-                        <tr key={index} className="border-b">
-                            {/* Tên, giá, ảnh */}
-                            <td className="flex items-center px-6 py-4">
-                                <Image
-                                    src={imageURLs[menu.images[0]]}
-                                    alt={menu.name}
-                                    className="h-10 w-10 rounded-md object-cover"
-                                    width={150}
-                                    height={150}
-                                />
-                                <div className="ml-3">
-                                    <div className="font-medium text-gray-800">{menu.name}</div>
-                                    <div className="text-gray-500">{menu?.size[0]?.price}</div>
-                                </div>
-                            </td>
+                        menu.map((menu, index) => (
+                            <tr key={index} className="border-b">
+                                {/* Tên, giá, ảnh */}
+                                <td className="flex items-center px-6 py-4">
+                                    <Image
+                                        src={imageURLs[menu.images[0]]}
+                                        alt={menu.name}
+                                        className="h-10 w-10 rounded-md object-cover"
+                                        width={150}
+                                        height={150}
+                                    />
+                                    <div className="ml-3">
+                                        <div className="font-medium text-gray-800">{menu.name}</div>
+                                        <div className="text-gray-500">{menu?.size[0]?.price}</div>
+                                    </div>
+                                </td>
 
-                            {/* Category */}
-                            <td className="px-6 py-4">
-                                <div className="font-medium text-gray-800">
-                                    {category.map(category =>(
-                                        category._id.includes(menu.category_id) ? (
-                                            <span
-                                                className='text-sm text-gray-500'
-                                                key={category._id}
-                                            >
+                                {/* Category */}
+                                <td className="px-6 py-4">
+                                    <div className="font-medium text-gray-800">
+                                        {category.map(category =>(
+                                            category._id.includes(menu.category_id) ? (
+                                                <span
+                                                    className='text-sm text-gray-500'
+                                                    key={category._id}
+                                                >
                                                 {category.name}
                                             </span>
-                                        ) : ("")
-                                    ))}
-                                </div>
-                            </td>
+                                            ) : ("")
+                                        ))}
+                                    </div>
+                                </td>
 
-                            {/* Tồn kho */}
-                            <td className="px-6 py-4 ">
-                                {/*<ToggleButton enabled={enabled} setEnabled={setEnabled}/>*/}
-                                <ToggleButton enabled={!menu.isOutOfStock}/>
-                            </td>
+                                {/* Tồn kho */}
+                                <td className="px-6 py-4 ">
+                                    {/*<ToggleButton enabled={enabled} setEnabled={setEnabled}/>*/}
+                                    <ToggleButton enabled={!menu.isOutOfStock}/>
+                                </td>
 
-                            {/* Best seller */}
-                            <td className="px-6 py-4 ">
-                                {/*<ToggleButton enabled={enabled} setEnabled={setEnabled}/>*/}
-                                <ToggleButton enabled={menu.isBestSeller}/>
-                            </td>
-                            <td className="px-6 py-4 text-blue-500 hover:text-blue-700 cursor-pointer flex justify-end">
-                                <Link
-                                    className="rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100"
-                                    href={`/menu/${menu._id}`}
-                                >
-                                    <LiaEditSolid className="text-2xl"/>
-                                </Link>
-                                <button
-                                    className="ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100"
-                                    onClick={() => handleOpenDeleteModal({ name: menu.name, _id: menu._id })}
-                                >
-                                    <RiDeleteBin6Line className="text-2xl"/>
-                                </button>
-                            </td>
-                        </tr>
-                    ))
+                                {/* Best seller */}
+                                <td className="px-6 py-4 ">
+                                    {/*<ToggleButton enabled={enabled} setEnabled={setEnabled}/>*/}
+                                    <ToggleButton enabled={menu.isBestSeller}/>
+                                </td>
+                                <td className="px-6 py-4 text-blue-500 hover:text-blue-700 cursor-pointer flex justify-end">
+                                    <Link
+                                        className="rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100"
+                                        href={`/menu/${menu._id}`}
+                                    >
+                                        <LiaEditSolid className="text-2xl"/>
+                                    </Link>
+                                    <button
+                                        className="ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100"
+                                        onClick={() => handleOpenDeleteModal({ name: menu.name, _id: menu._id })}
+                                    >
+                                        <RiDeleteBin6Line className="text-2xl"/>
+                                    </button>
+                                </td>
+                            </tr>
+                        ))
                     )}
                     </tbody>
                 </table>
@@ -272,4 +272,4 @@ const MenuTable = () => {
     );
 };
 
-export default MenuTable;
+export default CategoryTable

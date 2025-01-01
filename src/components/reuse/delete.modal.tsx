@@ -4,7 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 interface DeleteModalProps {
     show: boolean;
     handleClose: () => void;
-    selectedObject: { [key: string]: any }; // Linh hoạt để nhận mọi đối tượng
+    selectedObject: { [key: string]: any } | null; // Linh hoạt để nhận mọi đối tượng
     selectType: string;
     onConfirm:  () => void ;
 }
@@ -41,11 +41,16 @@ function DeleteModal({ show, handleClose, selectedObject, selectType, onConfirm 
         };
     }, [show, handleClose]);
 
+    // Kiểm tra props
+    useEffect(() => {
+        console.log(">>Check selectedObject", selectedObject);
+    }, [selectedObject]);
+
     return (
         <>
             <div
                 className={`fixed inset-0 flex items-center justify-center transition-colors duration-200
-                ${isVisible ? 'visible bg-black bg-opacity-50 z-50' : 'invisible'}`}
+                ${isVisible ? 'visible bg-black/50 z-50' : 'invisible'}`}
             >
                 <div
                     ref={popupRef}
@@ -59,9 +64,9 @@ function DeleteModal({ show, handleClose, selectedObject, selectType, onConfirm 
                         {/*</button>*/}
                     </div>
                     <div className='p-4'>
-                        Bạn có muốn xoá {selectType === "order" ? "order của" : ""} <b>{selectedObject?.size || selectedObject?.name}</b> không?
+                        Bạn có muốn xoá {selectType === "order" ? "order của" : selectType} <b>{selectedObject?.size || selectedObject?.name}</b> không?
                     </div>
-                    <div className='px-4 py-3 flex justify-end'>
+                    <div className='px-4 py-3 flex justify-end items-center'>
                         <button
                             onClick={handleClose}
                             className='px-4 py-2 font-medium bg-gray-100 text-gray-600 rounded-md hover:shadow-md hover:shadow-gray-400 focus:outline-none transition-all mr-4'

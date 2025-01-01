@@ -61,7 +61,13 @@ interface IOrderDetails {
     price: number;
     quantity: number;
     size: string;
-    topping: string[];
+    topping: IOrderTopping[];
     description: string;
+}
+
+interface IOrderTopping {
+    _id: string;
+    name: string;
+    price: number;
 }
 

@@ -10,4 +10,14 @@ const getOneCategory = async (id) => {
     return res.data;
 };
 
-export { getCategory, getOneCategory };
+const addCategory = async (name) => {
+    const res = await instance.post('/category', {name})
+    return res.data;
+}
+
+const deleteCategory = async (id) => {
+    const res = await instance.delete(`/category/${id}`);
+    return res.data;
+}
+
+export { getCategory, getOneCategory, addCategory, deleteCategory };

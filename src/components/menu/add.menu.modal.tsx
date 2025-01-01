@@ -17,7 +17,6 @@ const AddMenuModal: React.FC<IAddMenuModal> = ({ show, handleClose, category, se
     const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [file, setFile] = useState<File | null>(null);
     const [image, setImage] = useState<string | null>(null);
-    const [menuImage, setMenuImage] = useState<string | null>(null);
     const [isVisible, setIsVisible] = useState(false); // Kiểm soát animation
     const [loading, setLoading] = useState(false);
     const modalRef = useRef<HTMLDivElement>(null); // Tạo ref để tham chiếu tới vị trí của modal
@@ -40,7 +39,7 @@ const AddMenuModal: React.FC<IAddMenuModal> = ({ show, handleClose, category, se
             const res = await uploadFile(formData);
 
             if (res) {
-                console.log('Upload successful');
+                console.log('Upload successful', res);
                 return res.data.data.publicId;
             }
         } catch (error) {
@@ -60,7 +59,7 @@ const AddMenuModal: React.FC<IAddMenuModal> = ({ show, handleClose, category, se
 
         try {
             // Upload ảnh và lấy `menuImage`
-            const uploadedImage = await handleUploadFile();
+            const menuImage = await handleUploadFile();
 
             if (!menuImage) {
                 console.log('Upload failed');
@@ -70,12 +69,8 @@ const AddMenuModal: React.FC<IAddMenuModal> = ({ show, handleClose, category, se
             const reqData = {
                 name: productName,
                 category_id: [selectedCategory],
-                images: [uploadedImage]
+                images: [menuImage]
             };
-            
-
-            console.log('Payload gửi đi', reqData);
-            toast.success('Thêm mới thành công');
 
             //Gửi request để thêm menu
             if (reqData) {
@@ -95,31 +90,6 @@ const AddMenuModal: React.FC<IAddMenuModal> = ({ show, handleClose, category, se
             setLoading(false);
         }
     };
-
-    // const handleAddMenu = async () => {
-    //     if (!productName || !selectedCategory || !file) {
-    //         toast.info('Vui lòng nhập thông tin cần thiết');
-    //         return;
-    //     }
-
-    //     setLoading(true);
-    //     try {
-
-    //     } catch (error) {
-
-    //     }
-    //     if (!menuImage) {
-    //         console.log('Upload failed');
-    //     }
-
-    //     // Tạo payload
-    //     const reqData = {
-    //         name: productName,
-    //         category_id: [selectedCategory],
-    //         images: [menuImage]
-    //     };
-    //     console.log(reqData);
-    // };
 
     // Kích hoạt animation, đợi animation
     useEffect(() => {
