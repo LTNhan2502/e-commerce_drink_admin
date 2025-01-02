@@ -15,9 +15,14 @@ const addCategory = async (name) => {
     return res.data;
 }
 
+const updateCategory = async (id, name) => {
+    const res = await instance.patch(`/category/${id}`, {name})
+    return res.data;
+}
+
 const deleteCategory = async (id) => {
     const res = await instance.delete(`/category/${id}`);
     return res.data;
 }
 
-export { getCategory, getOneCategory, addCategory, deleteCategory };
+export { getCategory, getOneCategory, addCategory, updateCategory, deleteCategory };

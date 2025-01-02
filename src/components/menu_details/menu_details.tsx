@@ -1,16 +1,16 @@
 'use client';
-import { deleteSize, getSize } from '@/utils/sizeServices';
-import { deleteTopping, getTopping } from '@/utils/toppingClient';
+import {deleteSize, getSize, updateSize} from '@/utils/sizeServices';
+import {deleteTopping, getTopping, updateTopping} from '@/utils/toppingClient';
 import { useEffect, useState } from 'react';
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { LiaEditSolid } from 'react-icons/lia';
-import { RiDeleteBin6Line } from 'react-icons/ri';
+import {RiCheckFill, RiCloseFill, RiDeleteBin6Line} from 'react-icons/ri';
 import ModalSize from './modalSize';
 import ModalTopping from './modalTopping';
 import LoadingOverlay from '@/components/reuse/loading.overlay';
 import { toast } from 'react-toastify';
 import DeleteModal from '@/components/reuse/delete.modal';
-import {deleteCategory, getCategory} from "@/utils/categoryServices";
+import {deleteCategory, getCategory, updateCategory} from "@/utils/categoryServices";
 import ModalCategory from "@/components/menu_details/modalCategory";
 
 export default function MenuDetailsComponent() {
@@ -25,6 +25,10 @@ export default function MenuDetailsComponent() {
     const [showToppingModal, setShowToppingModal] = useState(false);
     const [showCategoryModal, setShowCategoryModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+    const [editingID, setEditingID] = useState<string>('');
+    const [changeValue, setChangeValue] = useState<string>('');
+    const [changePrice, setChangePrice] = useState<number>(0);
 
     // Hàm mở modal size
     const handleOpenSizeModal = (size: ISize) => {
@@ -45,6 +49,115 @@ export default function MenuDetailsComponent() {
         setSelectedObject(category);
         setSelectedType("category")
         setShowDeleteModal(true);
+    }
+
+    // Hàm click chỉnh sửa size và category
+    const handleClickChange = (id: string, value: string) => {
+        setEditingID(id);
+        setChangeValue(value);
+    }
+
+    // Hàm click chỉnh sửa topping
+    const handleClickChangeT = (id: string, value: string, price: number) => {
+        setEditingID(id);
+        setChangeValue(value);
+        setChangePrice(price)
+    }
+
+    // Hàm xác nhận thay đổi của size
+    const handleSaveSizeChange = async () => {
+        if(!editingID || !changeValue){
+            toast.info("Giá trị thay đổi không hợp lệ")
+            return;
+        }
+
+        setLoading(true)
+        try {
+            const res = await updateSize(editingID, changeValue)
+
+            if(res){
+                setSize((prev) =>
+                    prev.map((item) =>
+                        item._id === editingID ? { ...item, size: changeValue } : item
+                    )
+                );
+
+                setEditingID('')
+                setChangeValue('')
+                toast.success("Thay đổi thành công")
+            }
+        }catch(error){
+            console.log("Failed to change", error)
+            toast.error("Thay đổi thất bại")
+        }finally {
+            setLoading(false)
+        }
+    }
+
+    // Hàm xác nhận thay đổi của topping
+    const handleSaveToppingChange = async () => {
+        if(!editingID || !changeValue || !changePrice){
+            toast.info("Giá trị thay đổi không hợp lệ")
+            return;
+        }
+
+        setLoading(true)
+        try {
+            const res = await updateTopping(editingID, changeValue, changePrice)
+
+            if(res){
+                setTopping((prev) =>
+                    prev.map((item) =>
+                        item._id === editingID ? { ...item, name: changeValue, price: changePrice } : item
+                    )
+                )
+                setEditingID('')
+                setChangeValue('')
+                setChangePrice(0)
+                toast.success("Thay đổi thành công")
+            }
+        }catch(error){
+            console.log("Failed to change topping", error)
+            toast.error("Thay đổi thất bại")
+        }finally {
+            setLoading(false)
+        }
+    }
+
+    // Hàm xác nhận thay đổi của category
+    const handleSaveCategoryChange = async () => {
+        if(!editingID || !changeValue){
+            toast.info("Giá trị thay đổi không hợp lệ")
+            return;
+        }
+
+        setLoading(true)
+        try {
+            const res = await updateCategory(editingID, changeValue)
+
+            if(res){
+                setCategory((prev) =>
+                    prev.map((item) =>
+                        item._id === editingID ? { ...item, name: changeValue } : item
+                    )
+                )
+                setEditingID('')
+                setChangeValue('')
+                toast.success("Thay đổi thành công")
+            }
+        }catch(error){
+            console.log("Failed to change category", error)
+            toast.error("Thay đổi thất bại")
+        }finally {
+            setLoading(false)
+        }
+    }
+
+    // Hàm huỷ thay đổi
+    const handleCancelChange = () => {
+        setEditingID('')
+        setChangeValue('')
+        setChangePrice(0)
     }
 
     // Hàm xoá size
@@ -182,19 +295,52 @@ export default function MenuDetailsComponent() {
                             <tbody>
                             {size.map((item) => (
                                 <tr key={item._id} className='border-t-0 border-b last:border-none'>
-                                    <td className='px-6 py-4'>{item.size}</td>
-                                    <td className='px-6 py-4 flex justify-end items-center'>
-                                        <button
-                                            className='rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100'>
-                                            <LiaEditSolid className='text-2xl'/>
-                                        </button>
-                                        <button
-                                            className='ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100'
-                                            onClick={() => handleOpenSizeModal(item)}
-                                        >
-                                            <RiDeleteBin6Line className='text-2xl'/>
-                                        </button>
-                                    </td>
+                                    {item._id === editingID ? (
+                                        <>
+                                            <td className='px-6 py-4'>
+                                                <input
+                                                    type="text"
+                                                    value={changeValue!}
+                                                    onChange={(e) => setChangeValue(e.target.value)}
+                                                    autoFocus
+                                                    className='px-2 py-1 border rounded-md hover:border-gray-400 focus:outline-none focus:shadow-md focus:shadow-indigo-400 transition-all'
+                                                />
+                                            </td>
+                                            <td className='px-6 py-4 flex justify-end items-center'>
+                                                <button
+                                                    onClick={handleCancelChange}
+                                                    className='rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100'
+                                                >
+                                                    <RiCloseFill className='text-2xl'/>
+                                                </button>
+                                                <button
+                                                    onClick={handleSaveSizeChange}
+                                                    className='ml-2 rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100'
+                                                >
+                                                    <RiCheckFill className='text-2xl'/>
+                                                </button>
+                                            </td>
+                                        </>
+
+                                    ) : (
+                                        <>
+                                            <td className='px-6 py-4'>{item.size}</td>
+                                            <td className='px-6 py-4 flex justify-end items-center'>
+                                                <button
+                                                    onClick={() => handleClickChange(item._id, item.size)}
+                                                    className='rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100'
+                                                >
+                                                    <LiaEditSolid className='text-2xl'/>
+                                                </button>
+                                                <button
+                                                    className='ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100'
+                                                    onClick={() => handleOpenSizeModal(item)}
+                                                >
+                                                    <RiDeleteBin6Line className='text-2xl'/>
+                                                </button>
+                                            </td>
+                                        </>
+                                    )}
                                 </tr>
                             ))}
                             </tbody>
@@ -224,20 +370,61 @@ export default function MenuDetailsComponent() {
                             <tbody>
                             {topping.map((item) => (
                                 <tr key={item._id} className='border-b last:border-none'>
-                                    <td className='px-6 py-4'>{item.name}</td>
-                                    <td className='px-6 py-4'>{item.price}</td>
-                                    <td className='px-6 py-4 flex justify-end items-center'>
-                                        <button
-                                            className='rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100'>
-                                            <LiaEditSolid className='text-2xl'/>
-                                        </button>
-                                        <button
-                                            className='ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100'
-                                            onClick={() => handleOpenToppingModal(item)}
-                                        >
-                                            <RiDeleteBin6Line className='text-2xl'/>
-                                        </button>
-                                    </td>
+                                    {item._id === editingID ? (
+                                        <>
+                                            <td className='px-6 py-4'>
+                                                <input
+                                                    type="text"
+                                                    value={changeValue}
+                                                    onChange={(e) => setChangeValue(e.target.value)}
+                                                    autoFocus
+                                                    className='w-full px-2 py-1 border rounded-md hover:border-gray-400 focus:outline-none focus:shadow-md focus:shadow-indigo-400 transition-all'
+                                                />
+                                            </td>
+                                            <td className='px-6 py-4'>
+                                                <input
+                                                    type="number"
+                                                    value={changePrice}
+                                                    onChange={(e) => setChangePrice(parseInt(e.target.value))}
+                                                    autoFocus
+                                                    className='w-full px-2 py-1 border rounded-md hover:border-gray-400 focus:outline-none focus:shadow-md focus:shadow-indigo-400 transition-all'
+                                                />
+                                            </td>
+                                            <td className='px-6 py-4 flex justify-end items-center'>
+                                                <button
+                                                    onClick={handleCancelChange}
+                                                    className='rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100'
+                                                >
+                                                    <RiCloseFill className='text-2xl'/>
+                                                </button>
+                                                <button
+                                                    onClick={handleSaveToppingChange}
+                                                    className='ml-2 rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100'
+                                                >
+                                                    <RiCheckFill className='text-2xl'/>
+                                                </button>
+                                            </td>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <td className='px-6 py-4'>{item.name}</td>
+                                            <td className='px-6 py-4'>{item.price.toLocaleString()}</td>
+                                            <td className='px-6 py-4 flex justify-end items-center'>
+                                                <button
+                                                    onClick={() => handleClickChangeT(item._id, item.name, item.price)}
+                                                    className='rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100'
+                                                >
+                                                    <LiaEditSolid className='text-2xl'/>
+                                                </button>
+                                                <button
+                                                    className='ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100'
+                                                    onClick={() => handleOpenToppingModal(item)}
+                                                >
+                                                    <RiDeleteBin6Line className='text-2xl'/>
+                                                </button>
+                                            </td>
+                                        </>
+                                    )}
                                 </tr>
                             ))}
                             </tbody>
@@ -266,19 +453,51 @@ export default function MenuDetailsComponent() {
                             <tbody>
                             {category.map((item) => (
                                 <tr key={item._id} className='border-t-0 border-b last:border-none'>
-                                    <td className='px-6 py-4'>{item.name}</td>
-                                    <td className='px-6 py-4 flex justify-end items-center'>
-                                        <button
-                                            className='rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100'>
-                                            <LiaEditSolid className='text-2xl'/>
-                                        </button>
-                                        <button
-                                            className='ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100'
-                                            onClick={() => handleOpenCategoryModal(item)}
-                                        >
-                                            <RiDeleteBin6Line className='text-2xl'/>
-                                        </button>
-                                    </td>
+                                    {item._id === editingID ? (
+                                        <>
+                                            <td className='px-6 py-4'>
+                                                <input
+                                                    type="text"
+                                                    value={changeValue!}
+                                                    onChange={(e) => setChangeValue(e.target.value)}
+                                                    autoFocus
+                                                    className='px-2 py-1 border rounded-md hover:border-gray-400 focus:outline-none focus:shadow-md focus:shadow-indigo-400 transition-all'
+                                                />
+                                            </td>
+                                            <td className='px-6 py-4 flex justify-end items-center'>
+                                                <button
+                                                    onClick={handleCancelChange}
+                                                    className='rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100'
+                                                >
+                                                    <RiCloseFill className='text-2xl'/>
+                                                </button>
+                                                <button
+                                                    onClick={handleSaveCategoryChange}
+                                                    className='ml-2 rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100'
+                                                >
+                                                    <RiCheckFill className='text-2xl'/>
+                                                </button>
+                                            </td>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <td className='px-6 py-4'>{item.name}</td>
+                                            <td className='px-6 py-4 flex justify-end items-center'>
+                                                <button
+                                                    onClick={() => handleClickChange(item._id, item.name)}
+                                                    className='rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100'
+                                                >
+                                                    <LiaEditSolid className='text-2xl'/>
+                                                </button>
+                                                <button
+                                                    className='ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100'
+                                                    onClick={() => handleOpenCategoryModal(item)}
+                                                >
+                                                    <RiDeleteBin6Line className='text-2xl'/>
+                                                </button>
+                                            </td>
+                                        </>
+                                    )}
                                 </tr>
                             ))}
                             </tbody>

@@ -14,10 +14,7 @@ const createTopping = async (name, price) => {
 };
 
 const updateTopping = async (id, name, price) => {
-   const res = await instance.patch(`/topping/${id}`, {
-      name,
-      price
-   });
+   const res = await instance.patch(`/topping/${id}`, {name, price});
    return res.data;
 };
 
