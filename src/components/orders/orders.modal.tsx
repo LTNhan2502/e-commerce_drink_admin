@@ -57,8 +57,8 @@ const OrdersModal: React.FC<OrdersModalProps> = ({ show, handleClose, selectedOr
                 <div className='grid grid-cols-1 gap-6 mt-6'>
                     {selectedOrder && selectedOrder.order_details.map((selectedOrder, index) => {
                         // Tính tổng giá topping
-                        const toppingTotal =  selectedOrder.topping.reduce((toppingSum: number, topping: IOrderTopping) => {
-                            return toppingSum + topping.price;
+                        const toppingTotal =  (selectedOrder.topping || []).reduce((toppingSum: number, topping: IOrderTopping) => {
+                            return toppingSum + (topping.price || 0);
                         }, 0)
 
                         // Tính tổng sản phẩm (sản phẩm + topping) * quantity
@@ -90,7 +90,7 @@ const OrdersModal: React.FC<OrdersModalProps> = ({ show, handleClose, selectedOr
                                                 selectedOrder.topping.map((topping, index) => (
                                                     <div key={index} className="flex items-center space-x-2 ml-4">
                                                         <span className="font-medium">{topping.name}</span>
-                                                        <span className="text-gray-500">({topping.price.toLocaleString()} VNĐ)</span>
+                                                        <span className="text-gray-500">({topping.price?.toLocaleString()} VNĐ)</span>
                                                     </div>
                                                 ))
                                             ) : (

@@ -2,11 +2,12 @@
 import React, {useEffect, useState} from "react";
 import OrdersModal from "@/components/orders/orders.modal";
 import {IoAddCircleOutline} from "react-icons/io5";
-import {deleteOrder, getOrders} from "@/utils/orderServices";
+import {changeStatus, deleteOrder, getOrders} from "@/utils/orderServices";
 import LoadingOverlay from "@/components/reuse/loading.overlay";
 import {toast} from "react-toastify";
 import DeleteModal from "@/components/reuse/delete.modal";
 import AddOrderModal from "@/components/orders/add.order.modal";
+import {RiCheckFill, RiCloseFill} from "react-icons/ri";
 
 export
 
@@ -18,10 +19,61 @@ const ManageOrders = () => {
     const [isOpenDeleteModal, setIsOpenDeleteModal] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
 
+    const [changeID, setChangeID] = useState<string>('');
+    const [changeValue, setChangeValue] = useState<string>('');
+    const statusList = ['waiting', 'ordered', 'paid'];
+
+    const [selectedDeleteOrder, setSelectedDeleteOrder] = useState<{ name: string, id: string }>({ name: '', id: '' });
+    const [deleteOrderID, setDeleteOrderID] = useState<string>('');
+
     // Hàm mở modal detail
     const handleViewDetail = (order: IOrder) => {
         setIsOpenDetail(true);
         setSelectedOrder(order)
+    }
+
+    // Hàm thay đổi status
+    const handleClickChangeStatus = (id: string, currentStatus: string) => {
+        setChangeID(id);
+
+        // Tìm chỉ mục của trạng thái hiện tại
+        const currentIndex = statusList.indexOf(currentStatus);
+
+        // Chuyển sang trạng thái tiếp theo (vòng lặp)
+        const nextStatus = statusList[(currentIndex + 1) % statusList.length];
+        setChangeValue(nextStatus);
+    };
+
+    // Hàm huỷ thay đổi status
+    const handleCancelChange = () => {
+        setChangeID('')
+        setChangeValue('')
+    }
+
+    // Hàm xác nhận thay đổi status
+    const handleSaveStatus = async () => {
+        setLoading(true)
+        try {
+            const data = { _id: changeID, status: changeValue }
+            await changeStatus(data)
+
+            toast.success("Thay đổi thành công")
+        }catch(error){
+            console.log("Failed to change status", error)
+            toast.error('Lưu thất bại')
+        }finally {
+            setChangeID('')
+            setChangeValue('')
+            setLoading(false)
+        }
+    }
+
+
+    // Hàm click xoá order
+    const handleClickDelete = (order: IOrder) => {
+        setIsOpenDeleteModal(true)
+        setSelectedDeleteOrder({name: order.name, id: order._id})
+        setDeleteOrderID(order._id)
     }
 
     // Hàm xác nhận xoá order
@@ -39,6 +91,7 @@ const ManageOrders = () => {
             toast.error("Xoá thất bại")
         }finally {
             setLoading(false);
+            setIsOpenDeleteModal(false)
         }
     }
 
@@ -59,13 +112,21 @@ const ManageOrders = () => {
         fetchOrders()
     }, []);
 
+    // Kiểm tra orders
+    useEffect(() => {
+        console.log(">>Check order (order.card.tsx(64))", orders)
+    }, [orders]);
+
     return (
         <>
             {loading && <LoadingOverlay/>}
             {/* Modal chi tiết */}
             <OrdersModal show={isOpenDetail} handleClose={() => setIsOpenDetail(false)} selectedOrder={selectedOrder}/>
             {/* Modal thêm */}
-            <AddOrderModal show={isOpenAdd} handleClose={() => setIsOpenAdd(false)}/>
+            <AddOrderModal setOrders={setOrders} show={isOpenAdd} handleClose={() => setIsOpenAdd(false)}/>
+            {/* Modal xoá */}
+            <DeleteModal show={isOpenDeleteModal} handleClose={() => setIsOpenDeleteModal(false)} selectedObject={selectedDeleteOrder} selectType="order" onConfirm={() => handleDeleteOrder(deleteOrderID)}/>
+
             <div className="px-5 py-4">
                 {/* Thông tin chung */}
                 <div className="rounded-md px-6 py-5 bg-white shadow-sm">
@@ -136,36 +197,34 @@ const ManageOrders = () => {
                             key={order._id}
                             className="relative flex items-center bg-white shadow-md rounded-md overflow-hidden border border-gray-200 p-[10px]"
                         >
-                            {/* Nút X để đóng */}
+                            {/* Nút X để xoá */}
                             <button
                                 className="absolute top-2 right-2 text-gray-500 hover:text-red-600 transition"
-                                onClick={() => setIsOpenDeleteModal(true)}
+                                onClick={() => handleClickDelete(order)}
                             >
                                 ✖
                             </button>
 
-                            <DeleteModal show={isOpenDeleteModal} handleClose={() => setIsOpenDeleteModal(false)} selectedObject={{ name: order.name, id: order._id }} selectType="order" onConfirm={() => handleDeleteOrder(order._id)}/>
-
-                            {/* Nội dung bên phải */}
+                            {/* Nội dung */}
                             <div className="flex flex-col flex-1">
                                 <h2 className="text-md font-semibold text-gray-800">{order.name}</h2>
                                 <div className="flex justify-between items-center text-sm">
                                     <p>
                                         <span className="font-sm text-xs text-gray-500">Tổng: </span>
                                         {order.order_details
-                                            .reduce((total, item) => {
+                                            ?.reduce((total, item) => {
                                                 // Tổng giá sản phẩm chính
-                                                const itemTotal = item.price * item.quantity;
+                                                const itemTotal = (item.price || 0) * (item.quantity || 0);
 
                                                 // Tổng giá của topping
-                                                const toppingTotal = item.topping.reduce((toppingSum, topping) => {
-                                                    return toppingSum + topping.price;
-                                                }, 0);
+                                                const toppingTotal = item.topping?.reduce((toppingSum, topping) => {
+                                                    return toppingSum + (topping.price || 0);
+                                                }, 0) || 0;
 
                                                 // Cộng tổng giá sản phẩm và topping (topping cũng nhân với số lượng sản phẩm)
                                                 return total + itemTotal + toppingTotal;
                                             }, 0)
-                                            .toLocaleString()} VNĐ
+                                            ?.toLocaleString() || 0} VNĐ
                                     </p>
                                 </div>
                                 <div>
@@ -183,10 +242,38 @@ const ManageOrders = () => {
 
                                 {/* Trạng thái */}
                                 <div className='flex justify-between items-center'>
-                                    <span
-                                        className="flex items-center justify-center text-xs text-white font-medium rounded-md px-2 bg-indigo-800">
-                                        {order.status}
-                                    </span>
+                                    <div>
+                                        {changeID === order._id ? (
+                                            <div className='flex justify-around'>
+                                                <span
+                                                    onClick={() => handleClickChangeStatus(order._id, changeValue || order.status)}
+                                                    className={`flex items-center justify-center cursor-pointer text-xs text-white font-medium rounded-md px-2 py-1 transition-colors ${changeValue === 'waiting' ? 'bg-indigo-800' : changeValue === 'ordered' ? 'bg-yellow-500' : 'bg-emerald-600'}`}
+                                                >
+                                                    {changeValue}
+                                                </span>
+                                                <button
+                                                    onClick={handleCancelChange}
+                                                    className='rounded-md px-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100 mx-1'
+                                                >
+                                                    <RiCloseFill/>
+                                                </button>
+                                                <button
+                                                    onClick={handleSaveStatus}
+                                                    className='ml-2 rounded-md px-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100'
+                                                >
+                                                    <RiCheckFill/>
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <span
+                                                onClick={() => handleClickChangeStatus(order._id, order.status)}
+                                                className={`flex items-center justify-center cursor-pointer text-xs text-white font-medium rounded-md px-2 py-1 transition-colors ${order.status === 'waiting' ? 'bg-indigo-800' : order.status === 'ordered' ? 'bg-yellow-500' : 'bg-emerald-600'}`}
+                                            >
+                                                {order.status}
+                                            </span>
+                                        )}
+                                    </div>
+
                                     <button
                                         className="mt-2 text-indigo-600 text-xs font-medium hover:text-indigo-800 transition"
                                         onClick={() => handleViewDetail(order)}

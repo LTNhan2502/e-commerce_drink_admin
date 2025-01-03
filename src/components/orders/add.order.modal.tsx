@@ -1,5 +1,5 @@
 'use client'
-import React, {useEffect, useRef, useState} from "react";
+import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
 import {getMenu, getOneMenu} from "@/utils/menuServices";
 import {getTopping} from "@/utils/toppingClient";
 import LoadingOverlay from "@/components/reuse/loading.overlay";
@@ -7,21 +7,21 @@ import {toast} from "react-toastify";
 import {addOrder} from "@/utils/orderServices";
 
 interface IAddOrderModal {
+    setOrders: Dispatch<SetStateAction<IOrder[]>>;
     show: boolean;
     handleClose: () => void;
 }
 
 interface IProdS extends IProduct {
     selectedSize?: IMenuSize | null;
-    topping?: string[];
+    topping?: IOrderTopping[];
     quantity?: number;
     description?: string
 }
 
-const AddOrderModal: React.FC<IAddOrderModal> = ({ show, handleClose }) => {
+const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose }) => {
     const [name, setName] = useState<string>('');
     const [phone, setPhone] = useState<string>('');
-    const [description, setDescription] = useState<string>('');
     const [menu, setMenu] = useState<IProduct[]>([])
     const [topping, setTopping] = useState<ITopping[]>([])
     const [tampSelectedMenuID, setTampSelectedMenuID] = useState<string>('')
@@ -31,7 +31,7 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ show, handleClose }) => {
     const [loading, setLoading] = useState<boolean>(false);
 
     // Hàm thay đổi name
-    const handleNameChaneg = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
     }
 
@@ -123,21 +123,29 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ show, handleClose }) => {
 
     // Hàm thay đổi chọn topping
     const handleToppingChange = ( menuID: string, toppingID: string, isChecked: boolean ) => {
+        // Tìm topping theo toppingID
+        const selectedTopping = topping.find(t => t._id === toppingID)
+
         setSelectedMenu((prev) =>
             prev.map((item) =>
-                item._id == menuID
+                item._id === menuID
                     ? {
                         ...item,
                         topping: isChecked
-                            ? [ ...(item.topping || []), toppingID ]
-                            : (item.topping || []).filter(sT => sT !== toppingID)
-                    } : item
+                            ? selectedTopping
+                                ? [...(item.topping || []), selectedTopping]
+                                : item.topping
+                            : (item.topping || []).filter((sT) => sT._id !== toppingID),
+                    }
+                    : item
             )
-        )
+        );
         // Thực hiện map để kiểm tra từng đối tượng
         // Nếu item._id === menuID truyền vào thì thực hiện kiểm tra
         // Nếu true thì spread selectedMenu hiện tại ra, thay đổi topping như sau
-            // Nếu isChecked true thì spread topping hiện tại ra và thêm toppingName vào
+            // Nếu isChecked true thì thực hiện kiểm tra selectedTopping có tồn tại không
+                // Nếu có thì spread topping hiện tại ra và thêm selectedTopping vào
+                // Nếu không thì không thực hiện thay đổi
             // Nếu isCheck false thì lọc, lấy ra các topping khác với toppingName truyền vào
         // Nếu false thì trả về selectedMenu như cũ
 
@@ -183,14 +191,21 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ show, handleClose }) => {
                 order_details: selectedMenu.map((menu) => ({
                     ...menu,
                     size: menu.selectedSize?.size,
-                    price: menu.selectedSize?.price
+                    price: menu.selectedSize?.price,
+                    topping: menu.topping?.map((t) => t._id) || [],
                 })),
                 status: "waiting"
             }
-            console.log(">>Check order payload", order)
             const res = await addOrder(order);
-            console.log(">>Check res", res.data)
-            toast.success("Thêm thành công")
+
+            if(res){
+                setOrders((prev) => [...prev, res.data]);
+                handleClose()
+                setName("");
+                setPhone("");
+                setSelectedMenu([]);
+                toast.success("Thêm thành công")
+            }
         }catch(error){
             console.log("Failed to create order", error)
             toast.error("Không thể thêm mới")
@@ -275,7 +290,7 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ show, handleClose }) => {
                                 <input
                                     type='text'
                                     required
-                                    onChange={handleNameChaneg}
+                                    onChange={handleNameChange}
                                     className='border rounded-md w-full px-3 py-2 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all peer'
                                 />
                                 <span

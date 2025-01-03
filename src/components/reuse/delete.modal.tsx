@@ -41,11 +41,6 @@ function DeleteModal({ show, handleClose, selectedObject, selectType, onConfirm 
         };
     }, [show, handleClose]);
 
-    // Kiểm tra props
-    useEffect(() => {
-        console.log(">>Check selectedObject", selectedObject);
-    }, [selectedObject]);
-
     return (
         <>
             <div
