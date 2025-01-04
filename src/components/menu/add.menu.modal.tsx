@@ -34,6 +34,8 @@ const AddMenuModal: React.FC<IAddMenuModal> = ({ show, handleClose, category, se
     // Hàm thêm ảnh
     const handleUploadFile = async () => {
         try {
+            if (!file) throw new Error('No file selected');
+
             const formData = new FormData();
             formData.append('file', file);
             const res = await uploadFile(formData);
@@ -87,6 +89,10 @@ const AddMenuModal: React.FC<IAddMenuModal> = ({ show, handleClose, category, se
             console.log('Failed to add menu', error);
             toast.error('Thêm mới thất bại');
         } finally {
+            setProductName('')
+            setSelectedCategory('')
+            setFile(null)
+            handleClose()
             setLoading(false);
         }
     };

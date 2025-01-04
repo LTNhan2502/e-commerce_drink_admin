@@ -200,17 +200,16 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
 
             if(res){
                 setOrders((prev) => [...prev, res.data]);
-                handleClose()
-                setName("");
-                setPhone("");
-                setSelectedMenu([]);
                 toast.success("Thêm thành công")
-                console.log(">>res", res)
             }
         }catch(error){
             console.log("Failed to create order", error)
             toast.error("Không thể thêm mới")
         }finally {
+            handleClose()
+            setName("");
+            setPhone("");
+            setSelectedMenu([]);
             setLoading(false)
         }
     }
@@ -469,6 +468,7 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
                                                 <div className='flex flex-wrap'>
                                                     {/* Dùng menu.topping_id.some() để kiểm tra xem có ít nhất một topping trong menu.topping_id khớp với danh sách topping hay không */}
                                                     {/* Nếu true thì hiển thị ra */}
+                                                        {/* Trong vòng lặp topping, kiểm tra trong menu.topping_id có bao gồm topping._id đã lặp không*/}
                                                     {/* Nếu false thì hiện dòng span dưới */}
                                                     {menu.topping_id.some((id) => topping.find((toppingID) => toppingID._id === id)) ? (
                                                         topping.map((topping) => {
