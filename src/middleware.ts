@@ -1,30 +1,26 @@
-import {NextRequest, NextResponse} from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
     const token = request.cookies.get("access_token");
-    // Lấy ra URL ngay lúc thực hiện request
-    const url = request.nextUrl.clone();
+    const { pathname } = request.nextUrl;
 
-    // Nếu có access_token thì không cho phép truy cập vào login
-    // Điều hướng về home
-    if (token && url.pathname === "/auth/login") {
-        return NextResponse.redirect(
-            new URL('/', request.url)
-        );
+    // Nếu người dùng đã đăng nhập, không cho phép vào /auth/login
+    if (token && pathname === "/auth/login") {
+        return NextResponse.redirect(new URL("/", request.url));
     }
 
-    // Nếu không có access_token thì chỉ cho phép truy cập vào login
-    // Điều hướng về login
-    if (!token && url.pathname !== "/auth/login") {
-        return NextResponse.redirect(
-            new URL('/auth/login', request.url)
-        );
+    // Nếu người dùng chưa đăng nhập, cấm truy cập các route ngoài /auth/*
+    if (!token && !pathname.startsWith("/auth")) {
+        return NextResponse.redirect(new URL("/auth/login", request.url));
     }
 
-    // Nếu không có vấn đề gì thì tiếp tục thực hiện request
+    // Tiếp tục nếu không vi phạm điều kiện
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: ['/', '/auth/login', '/menu', '/category', '/menu-details']
+    matcher: [
+        // Áp dụng cho tất cả các route ngoại trừ các static files và api
+        '/((?!api|_next/static|_next/image|favicon.ico|images).*)',
+    ],
 };

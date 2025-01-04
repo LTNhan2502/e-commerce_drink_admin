@@ -251,7 +251,7 @@ const CategoryTable = () => {
                                 <td className="px-6 py-4 text-blue-500 hover:text-blue-700 cursor-pointer flex justify-end">
                                     <Link
                                         className="rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100"
-                                        href={`/menu/${menu._id}`}
+                                        href={`/src/app/(admin)/menu/${menu._id}`}
                                     >
                                         <LiaEditSolid className="text-2xl"/>
                                     </Link>
