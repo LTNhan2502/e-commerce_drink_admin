@@ -192,7 +192,7 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
                     ...menu,
                     size: menu.selectedSize?.size,
                     price: menu.selectedSize?.price,
-                    topping: menu.topping?.map((t) => t._id) || [],
+
                 })),
                 status: "waiting"
             }
@@ -205,6 +205,7 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
                 setPhone("");
                 setSelectedMenu([]);
                 toast.success("Thêm thành công")
+                console.log(">>res", res)
             }
         }catch(error){
             console.log("Failed to create order", error)
@@ -429,7 +430,7 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
                                             </div>
 
                                             <div>
-                                                <span className="font-sm text-xs text-gray-500">Giá: </span>
+                                                <span className="font-sm text-xs text-gray-500">Đơn giá: </span>
                                                 <span
                                                     className='font-medium '>{menu.selectedSize ? menu.selectedSize?.price.toLocaleString() : "00.0"} VNĐ</span>
                                             </div>
@@ -490,7 +491,7 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
                                                                             htmlFor={`topping-${menu._id}-${topping._id}`}
                                                                             className='pl-1'
                                                                         >
-                                                                            {topping.name}
+                                                                            {topping.name} - {topping.price.toLocaleString()} VNĐ
                                                                         </label>
                                                                     </div>
                                                                 )
@@ -503,10 +504,10 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
                                             
                                             {/* Description */}
                                             <div>
-                                                <span className="font-sm text-xs text-gray-500">Đánh giá: </span>
+                                                <span className="font-sm text-xs text-gray-500">Ghi chú: </span>
                                                 <div>
                                                     <textarea
-                                                        placeholder="Nhập đánh giá..."
+                                                        placeholder="Nhập ghi chú..."
                                                         value={menu.description}
                                                         onChange={(e) => handleDescriptionChange(e.target.value, menu._id)}
                                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-400"
