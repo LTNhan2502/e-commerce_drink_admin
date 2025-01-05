@@ -22,6 +22,9 @@ interface IProdS extends IProduct {
 const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose }) => {
     const [name, setName] = useState<string>('');
     const [phone, setPhone] = useState<string>('');
+    const [errorName, setErrorName] = useState<string>('');
+    const [errorPhone, setErrorPhone] = useState<string>('');
+
     const [menu, setMenu] = useState<IProduct[]>([])
     const [topping, setTopping] = useState<ITopping[]>([])
     const [tampSelectedMenuID, setTampSelectedMenuID] = useState<string>('')
@@ -33,11 +36,29 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
     // Hàm thay đổi name
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
+        setErrorName('')
+    }
+
+    // Hàm kiểm tra name hợp lệ
+    const handleNameBlur = () => {
+        if(!name.trim()){
+            setErrorName('Vui lòng nhập tên')
+        }
     }
 
     // Hàm thay đổi số điện thoại
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPhone(e.target.value);
+        setErrorPhone('')
+    }
+
+    // Hàm kiểm tra phone hợp lệ
+    const handlePhoneBlur = () => {
+        if(!phone){
+            setErrorPhone('Vui lòng nhập số điện thoại')
+        }else if(phone.length !== 10 || !/^0\d{9}$/.test(phone)){
+            setErrorPhone('Số điện thoại không hợp lệ')
+        }
     }
 
     // Hàm chọn sản phẩm
@@ -62,7 +83,7 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
                     // Nếu chưa tồn tại thì thêm mới
                     const updatedMenu = {
                         ...fetchedProd,
-                        selectedSize: null,
+                        selectedSize: fetchedProd ? fetchedProd.size[0] : null,
                         quantity: 1,
                     };
                     return [...prev, updatedMenu];
@@ -71,6 +92,9 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
         }catch(error){
             console.log("Failed to fecth target menu", error)
         }finally {
+            setName('')
+            setPhone('')
+            setTampSelectedMenuID('')
             setLoading(false)
         }
     }
@@ -170,14 +194,13 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
 
     // Hàm xác nhận order
     const handleCreateOrder = async () => {
-        if(!name){
-            toast.info("Vui lòng nhập tên")
+        // Validate
+        if(errorName.trim() || errorPhone.trim()){
+            toast.info("Vui lòng nhập thông tin")
             return;
         }
-        if(!phone){
-            toast.info("Vui lòng nhập số điện thoại")
-            return;
-        }
+
+        // Validate sản phẩm chọn
         if(!selectedMenu || selectedMenu.length < 1){
             toast.info("Vui lòng chọn sản phẩm")
             return;
@@ -291,12 +314,16 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
                                     type='text'
                                     required
                                     onChange={handleNameChange}
+                                    onBlur={handleNameBlur}
                                     className='border rounded-md w-full px-3 py-2 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all peer'
                                 />
                                 <span
                                     className='absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75'>
-                            Tên khách hàng
-                        </span>
+                                    Tên khách hàng
+                                </span>
+                                <p className="text-red-500 text-sm  mt-1 h-5">
+                                    {errorName.trim() ? errorName : '' }
+                                </p>
                             </label>
 
                             {/* Số điện thoại */}
@@ -305,17 +332,21 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
                                     type='text'
                                     required
                                     onChange={handlePhoneChange}
+                                    onBlur={handlePhoneBlur}
                                     className='border rounded-md w-full px-3 py-2 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all peer'
                                 />
                                 <span
                                     className='absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75'>
-                            Số điện thoại
-                        </span>
+                                    Số điện thoại
+                                </span>
+                                <p className="text-red-500 text-sm  mt-1 h-5">
+                                    {errorPhone.trim() ? errorPhone : ''}
+                                </p>
                             </label>
                         </div>
 
                         {/* Dòng order detail */}
-                        <div className='mt-6 flex justify-around items-center'>
+                        <div className='mt-3 flex justify-around items-center'>
                             <div className='relative shadow-inner w-1/3 h-96 rounded-md mr-3 overflow-auto'>
                                 {menu.map((menuItem) => {
                                     // Kiểm tra nếu menu có size và size.length > 0

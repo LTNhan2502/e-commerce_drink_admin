@@ -16,7 +16,7 @@ const links = [
     { href: '/', label: 'Dashboard', icon: AiOutlineDashboard },
     { href: '/menu', label: 'Menu', icon: AiOutlineProduct },
     { href: '/orders', label: 'Order', icon: AiOutlineShoppingCart },
-    { href: '/menu-details', label: 'Menu Details', icon: AiOutlineApartment },
+    { href: '/details', label: 'Details', icon: AiOutlineApartment },
     { href: '/table', label: 'Table', icon: AiOutlineTable },
 ];
 
