@@ -7,7 +7,7 @@ import {
     AiOutlineMenuFold,
     AiOutlineMenuUnfold,
     AiOutlineMore,
-    AiOutlineProduct, AiOutlineShoppingCart
+    AiOutlineProduct, AiOutlineShoppingCart, AiOutlineTable
 } from 'react-icons/ai';
 import { useState } from 'react';
 import Link from 'next/link';
@@ -17,6 +17,7 @@ const links = [
     { href: '/menu', label: 'Menu', icon: AiOutlineProduct },
     { href: '/orders', label: 'Order', icon: AiOutlineShoppingCart },
     { href: '/menu-details', label: 'Menu Details', icon: AiOutlineApartment },
+    { href: '/table', label: 'Table', icon: AiOutlineTable },
 ];
 
 const AdminSidebar = () => {

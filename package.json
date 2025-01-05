@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@types/js-cookie": "^3.0.6",
+    "@types/qrcode": "^1.5.5",
     "axios": "^1.7.9",
+    "bootstrap": "^5.3.3",
     "js-cookie": "^3.0.5",
     "next": "14.2.20",
-    "bootstrap": "^5.3.3",
+    "qrcode": "^1.5.4",
     "react": "^18",
     "react-bootstrap": "^2.10.7",
     "react-dom": "^18",
