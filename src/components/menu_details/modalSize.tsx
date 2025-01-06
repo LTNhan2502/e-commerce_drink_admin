@@ -8,10 +8,11 @@ import LoadingOverlay from '@/components/reuse/loading.overlay';
 interface ModalSizeProps {
     show: boolean;
     handleClose: () => void;
+    originSize: ISize[];
     setOriginSize: Dispatch<SetStateAction<ISize[]>>;
 }
 
-function ModalSize({ show, handleClose, setOriginSize }: ModalSizeProps) {
+function ModalSize({ show, handleClose, originSize, setOriginSize }: ModalSizeProps) {
     const [size, setSize] = useState<string>('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -47,6 +48,13 @@ function ModalSize({ show, handleClose, setOriginSize }: ModalSizeProps) {
     }, [show, handleClose]);
 
     const handleSubmit = async () => {
+        const alreadyHaveSize = originSize.find((oS) => oS.size === size)
+
+        if(alreadyHaveSize){
+            toast.info("Đã có size này")
+            return;
+        }
+
         if (size.trim().length > 0) {
             setLoading(true);
             try {

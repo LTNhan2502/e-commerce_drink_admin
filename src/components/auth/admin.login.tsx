@@ -30,8 +30,8 @@ const AdminLogin = () => {
             if(data.statusCode === 201) {
                 Cookies.set("access_token", data.data.access_token)
                 Cookies.set("refresh_token", data.data.refresh_token)
+                toast.success(`Chào mừng quay lại, ${data.data.username}`)
                 window.location.replace("/")
-                toast.success(`Chào mừng quay lại, ${data.username}`)
             }else if(data.statusCode === 404) {
                 toast.error("Tài khoản không tồn tại")
             }else{

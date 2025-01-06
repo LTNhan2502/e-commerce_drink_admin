@@ -251,18 +251,13 @@ export default function MenuDetailsComponent() {
         fetchData();
     }, []);
 
-    // Debug log
-    useEffect(() => {
-        console.log('>>Check size', size);
-        console.log('>>Check topping', topping);
-    }, [size, topping]);
 
     return (
         <>
             {loading && <LoadingOverlay />}
-            <ModalSize show={showSizeModal} handleClose={() => setShowSizeModal(false)} setOriginSize={setSize} />
-            <ModalTopping show={showToppingModal} handleClose={() => setShowToppingModal(false)} setOriginTopping={setTopping} />
-            <ModalCategory show={showCategoryModal} handleClose={() => setShowCategoryModal(false)} setOriginCategory={setCategory}/>
+            <ModalSize show={showSizeModal} handleClose={() => setShowSizeModal(false)} originSize={size} setOriginSize={setSize} />
+            <ModalTopping show={showToppingModal} handleClose={() => setShowToppingModal(false)} originTopping={topping} setOriginTopping={setTopping} />
+            <ModalCategory show={showCategoryModal} handleClose={() => setShowCategoryModal(false)} originCategory={category} setOriginCategory={setCategory}/>
             <DeleteModal
                 show={showDeleteModal}
                 handleClose={() => setShowDeleteModal(false)}

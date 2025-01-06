@@ -8,10 +8,11 @@ import LoadingOverlay from "@/components/reuse/loading.overlay";
 interface ModalToppingProps {
     show: boolean;
     handleClose: () => void;
+    originTopping: ITopping[];
     setOriginTopping: Dispatch<SetStateAction<ITopping[]>>;
 }
 
-function ModalTopping({ show, handleClose, setOriginTopping }: ModalToppingProps) {
+function ModalTopping({ show, handleClose, originTopping, setOriginTopping }: ModalToppingProps) {
     const popupRef = useRef<HTMLDivElement>(null); // Tạo ref để tham chiếu đến modal
     const [isVisible, setIsVisible] = useState(false); // Trạng thái kiểm soát animation
     const [topping, setTopping] = useState({ name: '', price: '' }); // Lưu các mảng input
@@ -47,18 +48,25 @@ function ModalTopping({ show, handleClose, setOriginTopping }: ModalToppingProps
 
     // Thêm topping
     const handleAddTopping = async () => {
+        const alreadyHaveTopping = originTopping.find((oT) => oT.name === topping.name);
         let flag = false;
 
         // Kiểm tra các input trống
         if (topping.name === '' || topping.price === '') {
             flag = true;
-            toast.error('Vui lòng nhập đầy đủ thông tin');
+            toast.info('Vui lòng nhập đầy đủ thông tin');
         }
 
         // Kiểm tra price có phải là số hay không
         if (isNaN(Number(topping.price))) {
             flag = true;
-            toast.error('Price phải là số');
+            toast.info('Price phải là số');
+        }
+
+        // Kiểm tra trùng
+        if(alreadyHaveTopping){
+            flag = true;
+            toast.info("Đã có topping này")
         }
 
         if (!flag) {

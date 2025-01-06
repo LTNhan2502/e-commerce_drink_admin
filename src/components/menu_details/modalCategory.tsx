@@ -8,10 +8,11 @@ import {addCategory} from "@/utils/categoryServices";
 interface ModalCategoryProps {
     show: boolean;
     handleClose: () => void;
+    originCategory: ICategory[];
     setOriginCategory: Dispatch<SetStateAction<ICategory[]>>;
 }
 
-function ModalCategory({ show, handleClose, setOriginCategory }: ModalCategoryProps) {
+function ModalCategory({ show, handleClose, originCategory, setOriginCategory }: ModalCategoryProps) {
     const [category, setCategory] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const popupRef = useRef<HTMLDivElement>(null); // Tạo ref để tham chiếu đến modal
@@ -46,6 +47,13 @@ function ModalCategory({ show, handleClose, setOriginCategory }: ModalCategoryPr
     }, [show, handleClose]);
 
     const handleSubmit = async () => {
+        const alreadyHaveCategory = originCategory.find((oC) => oC.name === category)
+
+        if(alreadyHaveCategory){
+            toast.info("Đã có category này")
+            return;
+        }
+
         if (category.trim().length > 0) {
             setLoading(true);
             try {

@@ -4,7 +4,7 @@ import QRCode from "qrcode";
 
 interface QrcodeTableProps {
     token: string;
-    tableNumber: number;
+    tableNumber: string;
     width?: number;
 }
 
