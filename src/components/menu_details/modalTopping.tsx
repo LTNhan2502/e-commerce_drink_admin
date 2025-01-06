@@ -46,6 +46,12 @@ function ModalTopping({ show, handleClose, originTopping, setOriginTopping }: Mo
         };
     }, [show, handleClose]);
 
+    // Hàm huỷ thêm topping
+    const handleCancel = () => {
+        setTopping({ name: '', price: '' });
+        handleClose();
+    }
+
     // Thêm topping
     const handleAddTopping = async () => {
         const alreadyHaveTopping = originTopping.find((oT) => oT.name === topping.name);
@@ -115,6 +121,7 @@ function ModalTopping({ show, handleClose, originTopping, setOriginTopping }: Mo
                                         type="text"
                                         id="name"
                                         name="name"
+                                        value={topping.name}
                                         autoFocus
                                         required
                                         onChange={(e) => setTopping({ ...topping, name: e.target.value })}
@@ -131,6 +138,7 @@ function ModalTopping({ show, handleClose, originTopping, setOriginTopping }: Mo
                                         type="number"
                                         id="price"
                                         name="price"
+                                        value={topping.price}
                                         required
                                         onChange={(e) => setTopping({ ...topping, price: e.target.value })}
                                         className="border rounded-md px-3 py-2 w-full hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all peer"
@@ -144,6 +152,12 @@ function ModalTopping({ show, handleClose, originTopping, setOriginTopping }: Mo
                         </Form>
                     </div>
                     <div className='border-t px-4 py-3 flex justify-end'>
+                        <button
+                            onClick={handleCancel}
+                            className='mr-2 px-4 py-2 font-medium bg-red-100 text-red-800 rounded-md hover:shadow-md hover:shadow-red-400 focus:outline-none transition-all'
+                        >
+                            Huỷ
+                        </button>
                         <button
                             onClick={handleAddTopping}
                             className='px-4 py-2 font-medium bg-indigo-100 text-indigo-800 rounded-md hover:shadow-md hover:shadow-indigo-400 focus:outline-none transition-all'

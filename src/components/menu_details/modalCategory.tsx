@@ -46,6 +46,13 @@ function ModalCategory({ show, handleClose, originCategory, setOriginCategory }:
         };
     }, [show, handleClose]);
 
+    // Hàm huỷ thêm category
+    const handleCancel = () => {
+        setCategory('')
+        handleClose()
+    }
+
+    // Hàm thêm category
     const handleSubmit = async () => {
         const alreadyHaveCategory = originCategory.find((oC) => oC.name === category)
 
@@ -100,6 +107,7 @@ function ModalCategory({ show, handleClose, originCategory, setOriginCategory }:
                                         type='category'
                                         id='category'
                                         name='category'
+                                        value={category}
                                         autoFocus
                                         required
                                         onChange={(e) => setCategory(e.target.value)}
@@ -114,6 +122,12 @@ function ModalCategory({ show, handleClose, originCategory, setOriginCategory }:
                         </Form>
                     </div>
                     <div className='px-4 py-3 flex justify-end'>
+                        <button
+                            onClick={handleCancel}
+                            className='mr-2 px-4 py-2 font-medium bg-red-100 text-red-800 rounded-md hover:shadow-md hover:shadow-red-400 focus:outline-none transition-all'
+                        >
+                            Huỷ
+                        </button>
                         <button
                             onClick={handleSubmit}
                             className='px-4 py-2 font-medium bg-indigo-100 text-indigo-800 rounded-md hover:shadow-md hover:shadow-indigo-400 focus:outline-none transition-all'

@@ -47,6 +47,13 @@ function ModalSize({ show, handleClose, originSize, setOriginSize }: ModalSizePr
         };
     }, [show, handleClose]);
 
+    // Hàm huỷ thêm
+    const handleCancel = () => {
+        setSize('')
+        handleClose()
+    }
+
+    // Hàm thêm size
     const handleSubmit = async () => {
         const alreadyHaveSize = originSize.find((oS) => oS.size === size)
 
@@ -102,6 +109,7 @@ function ModalSize({ show, handleClose, originSize, setOriginSize }: ModalSizePr
                                         type='size'
                                         id='size'
                                         name='size'
+                                        value={size}
                                         autoFocus
                                         required
                                         onChange={(e) => setSize(e.target.value)}
@@ -116,6 +124,12 @@ function ModalSize({ show, handleClose, originSize, setOriginSize }: ModalSizePr
                         </Form>
                     </div>
                     <div className='px-4 py-3 flex justify-end'>
+                        <button
+                            onClick={handleCancel}
+                            className='mr-2 px-4 py-2 font-medium bg-red-100 text-red-800 rounded-md hover:shadow-md hover:shadow-red-400 focus:outline-none transition-all'
+                        >
+                            Huỷ
+                        </button>
                         <button
                             onClick={handleSubmit}
                             className='px-4 py-2 font-medium bg-indigo-100 text-indigo-800 rounded-md hover:shadow-md hover:shadow-indigo-400 focus:outline-none transition-all'
