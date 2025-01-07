@@ -81,3 +81,12 @@ interface IOrderTopping {
     price: number;
 }
 
+interface ITable {
+    _id?: string;
+    tableNumber: string;
+    quantity: number;
+    QRCode?: string;
+    status?: string;
+    lastGen?: string | null;
+}
+

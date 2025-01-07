@@ -23,6 +23,30 @@ const MenuTable = () => {
     const [imageURLs, setImageURLs] = useState<Record<string, string>>({})
     const [loading, setLoading] = useState(false);
 
+    const [nameSearch, setNameSearch] = useState<string>("");
+    const [stockSearch, setStockSearch] = useState<string>("");
+    const searchedMenu = menu
+        // Filter theo tên
+        .filter((item) => item.name.toLowerCase().includes(nameSearch.toLowerCase()))
+        // Filter theo stock
+        .filter((item) => {
+            // Stock ở trạng thái mặc định sẽ hiển thị all
+            if(stockSearch === '') return true;
+            // Nếu stockSearch là true, thì return true, ngược lại
+            return item.isOutOfStock === ( stockSearch === 'true' )
+        })
+
+    // Hàm clear filter
+    const handleClearFilter = () => {
+        setNameSearch('')
+        setStockSearch('')
+    }
+
+    // Hàm tìm kiếm
+    const handleSearch = (value: boolean) => {
+        return searchedMenu.filter((item) => item.isOutOfStock === value)
+    }
+
     // Hàm mở modal xoá
     const handleOpenDeleteModal = (menu: {name: string; _id: string}) => {
         setSelectedMenu(menu)
@@ -149,27 +173,42 @@ const MenuTable = () => {
 
                 {/* Tìm kiếm */}
                 <div className='mt-6'>
-                    <p className='font-medium mb-4 text-xl'>Bộ lọc</p>
+                    <div className='flex items-center justify-between'>
+                        <p className='font-medium mb-4 text-xl'>Bộ lọc</p>
+                        {nameSearch.trim().length > 0 || stockSearch ? (
+                            <button
+                                onClick={handleClearFilter}
+                                className='mb-3 px-2 py-1 font-medium rounded-md bg-indigo-100 text-indigo-800 hover:shadow-md hover:shadow-indigo-400 transition-all'
+                            >
+                                Xoá lọc
+                            </button>
+                        ) : ''}
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         {/* Input Tên sản phẩm */}
                         <label className="relative">
                             <input
                                 type="text"
+                                value={nameSearch}
                                 required
+                                onChange={(e) => setNameSearch(e.target.value)}
                                 className="border rounded-md px-3 py-2 w-full hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all peer"
                             />
-                            <span className="absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75">
+                            <span
+                                className="absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75">
                                 Tên sản phẩm
                             </span>
                         </label>
 
                         {/* Select Trạng thái */}
                         <select
+                            value={stockSearch}
+                            onChange={(e) => setStockSearch(e.target.value)}
                             className="border rounded-md px-3 py-2 w-full hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all"
                         >
                             <option value="">Trạng thái</option>
-                            <option value="pending">Còn hàng</option>
-                            <option value="completed">Hết hàng</option>
+                            <option value="false">Còn hàng</option>
+                            <option value="true">Hết hàng</option>
                         </select>
 
                         {/* Nội dung trống để giữ layoutt */}
@@ -204,67 +243,74 @@ const MenuTable = () => {
                             </td>
                         </tr>
                     ) : (
-                    menu.map((menu, index) => (
-                        <tr key={index} className="border-b">
-                            {/* Tên, giá, ảnh */}
-                            <td className="flex items-center px-6 py-4">
-                                <Image
-                                    src={imageURLs[menu.images[0]]}
-                                    alt={menu.name}
-                                    className="h-10 w-10 rounded-md object-cover"
-                                    width={150}
-                                    height={150}
-                                />
-                                <div className="ml-3">
-                                    <div className="font-medium text-gray-800">{menu.name}</div>
-                                    <div className="text-gray-500">{menu?.size[0]?.price}</div>
-                                </div>
-                            </td>
-
-                            {/* Category */}
-                            <td className="px-6 py-4">
-                                <div className="font-medium text-gray-800">
-                                    {category.map(category =>(
-                                        category._id.includes(menu.category_id) ? (
-                                            <span
-                                                className='text-sm text-gray-500'
-                                                key={category._id}
-                                            >
-                                                {category.name}
-                                            </span>
-                                        ) : ("")
-                                    ))}
-                                </div>
-                            </td>
-
-                            {/* Tồn kho */}
-                            <td className="px-6 py-4 ">
-                                {/*<ToggleButton enabled={enabled} setEnabled={setEnabled}/>*/}
-                                <ToggleButton enabled={!menu.isOutOfStock}/>
-                            </td>
-
-                            {/* Best seller */}
-                            <td className="px-6 py-4 ">
-                                {/*<ToggleButton enabled={enabled} setEnabled={setEnabled}/>*/}
-                                <ToggleButton enabled={menu.isBestSeller}/>
-                            </td>
-                            <td className="px-6 py-4 text-blue-500 hover:text-blue-700 cursor-pointer flex justify-end">
-                                <Link
-                                    className="rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100"
-                                    href={`/menu/${menu._id}`}
-                                >
-                                    <LiaEditSolid className="text-2xl"/>
-                                </Link>
-                                <button
-                                    className="ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100"
-                                    onClick={() => handleOpenDeleteModal({ name: menu.name, _id: menu._id })}
-                                >
-                                    <RiDeleteBin6Line className="text-2xl"/>
-                                </button>
+                    searchedMenu.length === 0 ? (
+                        <tr>
+                            <td colSpan={4} className="text-center py-6 font-bold text-md">
+                                Sản phẩm bạn tìm kiếm không tồn tại
                             </td>
                         </tr>
-                    ))
-                    )}
+                    ) : (
+                        searchedMenu.map((menu, index) => (
+                            <tr key={index} className="border-b">
+                                {/* Tên, giá, ảnh */}
+                                <td className="flex items-center px-6 py-4">
+                                    <Image
+                                        src={imageURLs[menu.images[0]]}
+                                        alt={menu.name}
+                                        className="h-10 w-10 rounded-md object-cover"
+                                        width={150}
+                                        height={150}
+                                    />
+                                    <div className="ml-3">
+                                        <div className="font-medium text-gray-800">{menu.name}</div>
+                                        <div className="text-gray-500">{menu?.size[0]?.price}</div>
+                                    </div>
+                                </td>
+
+                                {/* Category */}
+                                <td className="px-6 py-4">
+                                    <div className="font-medium text-gray-800">
+                                        {category.map(category =>(
+                                            category._id.includes(menu.category_id) ? (
+                                                <span
+                                                    className='text-sm text-gray-500'
+                                                    key={category._id}
+                                                >
+                                                    {category.name}
+                                                </span>
+                                            ) : ("")
+                                        ))}
+                                    </div>
+                                </td>
+
+                                {/* Tồn kho */}
+                                <td className="px-6 py-4 ">
+                                    {/*<ToggleButton enabled={enabled} setEnabled={setEnabled}/>*/}
+                                    <ToggleButton enabled={!menu.isOutOfStock}/>
+                                </td>
+
+                                {/* Best seller */}
+                                <td className="px-6 py-4 ">
+                                    {/*<ToggleButton enabled={enabled} setEnabled={setEnabled}/>*/}
+                                    <ToggleButton enabled={menu.isBestSeller}/>
+                                </td>
+                                <td className="px-6 py-4 text-blue-500 hover:text-blue-700 cursor-pointer flex justify-end">
+                                    <Link
+                                        className="rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100"
+                                        href={`/menu/${menu._id}`}
+                                    >
+                                        <LiaEditSolid className="text-2xl"/>
+                                    </Link>
+                                    <button
+                                        className="ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100"
+                                        onClick={() => handleOpenDeleteModal({ name: menu.name, _id: menu._id })}
+                                    >
+                                        <RiDeleteBin6Line className="text-2xl"/>
+                                    </button>
+                                </td>
+                            </tr>
+                        ))
+                    ))}
                     </tbody>
                 </table>
             </div>

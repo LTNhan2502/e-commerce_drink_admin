@@ -2,25 +2,17 @@
 import React, {useState} from "react";
 import {IoAddCircleOutline} from "react-icons/io5";
 import {LiaEditSolid} from "react-icons/lia";
-import {RiDeleteBin6Line} from "react-icons/ri";
+import {RiCheckFill, RiCloseFill, RiDeleteBin6Line} from "react-icons/ri";
 import LoadingOverlay from "@/components/reuse/loading.overlay";
-import Link from "next/link";
 import QrcodeTable from "@/components/table/qrcode.table";
 import DeleteModal from "@/components/reuse/delete.modal";
 import {toast} from "react-toastify";
-
-interface ITable {
-    _id: string;
-    tableNumber: string;
-    quantity: number;
-    QRCode: string;
-    status: string;
-    lastGen: string | null;
-}
+import AddTableModal from "@/components/table/add.table.modal";
 
 interface ISelectedTable {
     _id: string;
     name: string;
+    quantity?: number;
 }
 
 const ManageTable = () => {
@@ -54,12 +46,60 @@ const ManageTable = () => {
 
     const [tables, setTables] = useState<ITable[]>(table_number);
     const [selectedTable, setSelectedTable] = useState<ISelectedTable | null>(null);
-    const [show, setShow] = useState<boolean>(false);
+    const [showAddModal, setShowAddModal] = useState<boolean>(false)
+    const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
+
+    const [editingID, setEditingID] = useState<string>('');
+    const [editValue, setEditValue] = useState<number>(0);
+
+    const [tableNumberSearch, setTableNumberSearch] = useState<string>('');
+    const [quantitySearch, setQuantitySearch] = useState<number>(0);
+    const searchedTables = tables
+        // Filter theo số bàn
+        .filter((item) => item.tableNumber.toLowerCase().includes(tableNumberSearch.toLowerCase()))
+        // Filter theo sức chứa
+        .filter((item) => {
+            // Mặc định hiển thị all
+            if(quantitySearch === 0) return true;
+            // Hiển thị sức chứa theo tìm kiếm
+            return item.quantity === quantitySearch
+        })
+
+    // Hàm clear filter
+    const handleClearFilter = () => {
+        setTableNumberSearch('')
+        setQuantitySearch(0)
+    }
+
+    // Hàm click chỉnh sửa
+    const handleClickChange = (id: string, value: number) => {
+        setEditingID(id)
+        setEditValue(value)
+    }
+
+    // Hàm lưu chỉnh sửa
+    const handleSaveChange = () => {
+        setLoading(true)
+        try {
+            //  Call api thay đổi
+        }catch(error){
+            console.log("Failed to save table", error)
+            toast.error("Lưu thất bại")
+        }finally {
+            setLoading(false)
+        }
+    }
+
+    // Hàm huỷ chỉnh sửa
+    const handleCancelChange = () => {
+        setEditingID('')
+        setEditValue(0)
+    }
 
     // Hàm mở delete modal
     const handleOpenDeleteModal = (data: ISelectedTable) => {
-        setShow(true)
+        setShowDeleteModal(true)
         setSelectedTable(data);
     }
 
@@ -76,14 +116,17 @@ const ManageTable = () => {
             toast.error("Xoá thất bại")
         }finally {
             setLoading(false)
-            setShow(false)
+            setShowDeleteModal(false)
         }
     }
 
     // Hàm tạo QRCode
-    const generateQRCode = async (tableID: string) => {
-        const token = `${tableID}-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`
-        const qrUrl = `https://e-commerce-drink-client.vercel.app/table/${token}`
+    const generateQRCode = async (tableID: string, tableNumber: string) => {
+        // Call api lấy token mới về
+
+
+        // const fakeToken = `${tableID}-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`
+        const qrUrl = `https://e-commerce-drink-client.vercel.app/table/${tableNumber}`
 
         setTables(tables.map((table: ITable) =>
             table._id === tableID
@@ -97,7 +140,8 @@ const ManageTable = () => {
     }
     return (
         <>
-            <DeleteModal show={show} handleClose={() => setShow(false)} selectedObject={selectedTable} selectType={'bàn số'} onConfirm={handleDeleteTable}/>
+            <AddTableModal show={showAddModal} handleClose={() => setShowAddModal(false)} originTable={tables} setOriginTable={setTables}/>
+            <DeleteModal show={showDeleteModal} handleClose={() => setShowDeleteModal(false)} selectedObject={selectedTable} selectType={'bàn số'} onConfirm={handleDeleteTable}/>
             <div className="px-5 py-4">
                 {loading && <LoadingOverlay/>}
 
@@ -111,7 +155,7 @@ const ManageTable = () => {
                         <div>
                             <button
                                 className="bg-white border border-gray-300 text-indigo-500 hover:bg-indigo-800 hover:text-white rounded-full p-2 shadow transition-all"
-                                // onClick={() => setIsOpenAddModal(true)}
+                                onClick={() => setShowAddModal(true)}
                             >
                                 <IoAddCircleOutline className="text-2xl"/>
                             </button>
@@ -120,28 +164,47 @@ const ManageTable = () => {
 
                     {/* Tìm kiếm */}
                     <div className='mt-6'>
-                        <p className='font-medium mb-4 text-xl'>Bộ lọc</p>
+                        <div className='flex items-center justify-between'>
+                            <p className='font-medium mb-4 text-xl'>Bộ lọc</p>
+                            {tableNumberSearch.trim().length > 0 || quantitySearch !== 0 ? (
+                                <button
+                                    onClick={handleClearFilter}
+                                    className='mb-3 px-2 py-1 font-medium rounded-md bg-indigo-100 text-indigo-800 hover:shadow-md hover:shadow-indigo-400 transition-all'
+                                >
+                                    Xoá lọc
+                                </button>
+                            ) : ''}
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             {/* Input Tên sản phẩm */}
                             <label className="relative">
                                 <input
                                     type="text"
+                                    value={tableNumberSearch}
                                     required
+                                    onChange={(e) => setTableNumberSearch(e.target.value)}
                                     className="border rounded-md px-3 py-2 w-full hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all peer"
                                 />
-                                <span className="absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75">
+                                <span
+                                    className="absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75">
                                     Số bàn
                                 </span>
                             </label>
 
-                            {/* Select Trạng thái */}
-                            <select
-                                className="border rounded-md px-3 py-2 w-full hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all"
-                            >
-                                <option value="">Trạng thái</option>
-                                <option value="pending">Còn trống</option>
-                                <option value="completed">Đầy</option>
-                            </select>
+                            {/* Sức chứa */}
+                            <label className="relative">
+                                <input
+                                    type="number"
+                                    value={quantitySearch}
+                                    required
+                                    onChange={(e) => setQuantitySearch(parseInt(e.target.value) || 0)}
+                                    className="border rounded-md px-3 py-2 w-full hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all peer"
+                                />
+                                <span
+                                    className="absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75">
+                                    Sức chứa
+                                </span>
+                            </label>
 
                             {/* Nội dung trống để giữ layoutt */}
                             <div></div>
@@ -174,69 +237,145 @@ const ManageTable = () => {
                                 </td>
                             </tr>
                         ) : (
-                            tables.map((table, index) => (
-                                <tr key={index} className="border-b">
-                                    {/* Số bàn */}
-                                    <td className=" px-6 py-4">
-                                        <div className="ml-3">
-                                            <div className="font-medium text-gray-800">{table.tableNumber}</div>
-                                        </div>
-                                    </td>
-
-                                    {/* Sức chứa */}
-                                    <td className="px-6 py-4">
-                                        <div>{table.quantity}</div>
-                                    </td>
-
-                                    {/* QR Code */}
-                                    <td className="flex items-center justify-center px-6 py-4">
-                                        {table.QRCode ? (
-                                            <div className="flex flex-col items-center gap-2">
-                                                <QrcodeTable token={table.QRCode} tableNumber={table.tableNumber}/>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => generateQRCode(table._id)}
-                                                        className="text-xs font-medium px-2 py-1 bg-indigo-100 text-indigo-800 rounded hover:shadow-md hover:shadow-indigo-400 transition-all"
-                                                    >
-                                                        Tạo mới
-                                                    </button>
-                                                    <button
-                                                        onClick={() => window.print()}
-                                                        className="text-xs font-medium px-2 py-1 bg-green-100 text-green-800 rounded hover:shadow-md hover:shadow-green-400 transition-all"
-                                                    >
-                                                        In
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <button
-                                                onClick={() => generateQRCode(table._id)}
-                                                className="px-4 py-2 font-medium bg-indigo-100 text-indigo-800 rounded hover:shadow-md hover:shadow-indigo-400 transition-all"
-                                            >
-                                                Tạo QR
-                                            </button>
-                                        )}
-                                    </td>
-
-                                    <td className="px-6 py-4 text-right">
-                                        <div className='flex justify-end items-center gap-2'>
-                                            <Link
-                                                className="rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100"
-                                                href={`/table/${table._id}`}
-                                            >
-                                                <LiaEditSolid className="text-2xl"/>
-                                            </Link>
-                                            <button
-                                                className="ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100"
-                                                onClick={() => handleOpenDeleteModal({ name: table.tableNumber, _id: table._id })}
-                                            >
-                                                <RiDeleteBin6Line className="text-2xl"/>
-                                            </button>
-
-                                        </div>
+                            searchedTables.length === 0 ? (
+                                <tr>
+                                    <td colSpan={4} className="text-center py-6 font-bold text-md">
+                                        Bàn bạn tìm kiếm không tồn tại
                                     </td>
                                 </tr>
-                            ))
+                            ) : (
+                                searchedTables.map((table, index) => (
+                                    <tr key={index} className="border-b">
+                                        {table._id === editingID ? (
+                                            <>
+                                                {/* Số bàn */}
+                                                <td className=" px-6 py-4">
+                                                    <div className="ml-3">
+                                                        <div className="font-medium text-gray-800">{table.tableNumber}</div>
+                                                    </div>
+                                                </td>
+
+                                                {/* Sức chứa */}
+                                                <td className="px-6 py-4">
+                                                    <div>
+                                                        <input
+                                                            type="number"
+                                                            value={editValue}
+                                                            onChange={(e) => setEditValue(parseInt(e.target.value))}
+                                                            autoFocus
+                                                            className='px-2 py-1 border rounded-md hover:border-gray-400 focus:outline-none focus:shadow-md focus:shadow-indigo-400 transition-all'
+                                                        />
+                                                    </div>
+                                                </td>
+
+                                                {/* QR Code */}
+                                                <td className="flex items-center justify-center px-6 py-4">
+                                                    {table.QRCode ? (
+                                                        <div className="flex flex-col items-center gap-2">
+                                                            <QrcodeTable token={table.QRCode} tableNumber={table.tableNumber}/>
+                                                            <div className="flex gap-2">
+                                                                <button
+                                                                    onClick={() => window.print()}
+                                                                    className="text-xs font-medium px-2 py-1 bg-green-100 text-green-800 rounded hover:shadow-md hover:shadow-green-400 transition-all"
+                                                                >
+                                                                    In
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => generateQRCode(table._id!, table.tableNumber)}
+                                                            className="px-4 py-2 font-medium bg-indigo-100 text-indigo-800 rounded hover:shadow-md hover:shadow-indigo-400 transition-all"
+                                                        >
+                                                            Tạo QR
+                                                        </button>
+                                                    )}
+                                                </td>
+
+                                                <td className="px-6 py-4 text-right">
+                                                    <div className='flex justify-end items-center gap-2'>
+                                                        <button
+                                                            onClick={handleCancelChange}
+                                                            className='rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100'
+                                                        >
+                                                            <RiCloseFill className='text-2xl'/>
+                                                        </button>
+                                                        <button
+                                                            // onClick={handleSaveSizeChange}
+                                                            className='ml-2 rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100'
+                                                        >
+                                                            <RiCheckFill className='text-2xl'/>
+                                                        </button>
+
+                                                    </div>
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                {/* Số bàn */}
+                                                <td className=" px-6 py-4">
+                                                    <div className="ml-3">
+                                                        <div className="font-medium text-gray-800">{table.tableNumber}</div>
+                                                    </div>
+                                                </td>
+
+                                                {/* Sức chứa */}
+                                                <td className="px-6 py-4">
+                                                    <div>{table.quantity}</div>
+                                                </td>
+
+                                                {/* QR Code */}
+                                                <td className="flex items-center justify-center px-6 py-4">
+                                                    {table.QRCode ? (
+                                                        <div className="flex flex-col items-center gap-2">
+                                                            <QrcodeTable token={table.QRCode} tableNumber={table.tableNumber}/>
+                                                            <div className="flex gap-2">
+                                                                {/*<button*/}
+                                                                {/*    onClick={() => generateQRCode(table._id!)}*/}
+                                                                {/*    className="text-xs font-medium px-2 py-1 bg-indigo-100 text-indigo-800 rounded hover:shadow-md hover:shadow-indigo-400 transition-all"*/}
+                                                                {/*>*/}
+                                                                {/*    Tạo mới*/}
+                                                                {/*</button>*/}
+                                                                <button
+                                                                    onClick={() => window.print()}
+                                                                    className="text-xs font-medium px-2 py-1 bg-green-100 text-green-800 rounded hover:shadow-md hover:shadow-green-400 transition-all"
+                                                                >
+                                                                    In
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => generateQRCode(table._id!, table.tableNumber)}
+                                                            className="px-4 py-2 font-medium bg-indigo-100 text-indigo-800 rounded hover:shadow-md hover:shadow-indigo-400 transition-all"
+                                                        >
+                                                            Tạo QR
+                                                        </button>
+                                                    )}
+                                                </td>
+
+                                                <td className="px-6 py-4 text-right">
+                                                    <div className='flex justify-end items-center gap-2'>
+                                                        <button
+                                                            className="rounded-md p-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100"
+                                                            onClick={() => handleClickChange(table._id!, table.quantity)}
+                                                        >
+                                                            <LiaEditSolid className="text-2xl"/>
+                                                        </button>
+                                                        <button
+                                                            className="ml-2 rounded-md p-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100"
+                                                            onClick={() => handleOpenDeleteModal({ name: table.tableNumber, _id: table._id! })}
+                                                        >
+                                                            <RiDeleteBin6Line className="text-2xl"/>
+                                                        </button>
+
+                                                    </div>
+                                                </td>
+                                            </>
+                                        )}
+                                    </tr>
+                                ))
+                            )
                         )}
                         </tbody>
                     </table>

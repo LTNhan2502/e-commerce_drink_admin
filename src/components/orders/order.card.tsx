@@ -26,6 +26,25 @@ const ManageOrders = () => {
     const [selectedDeleteOrder, setSelectedDeleteOrder] = useState<{ name: string, id: string }>({ name: '', id: '' });
     const [deleteOrderID, setDeleteOrderID] = useState<string>('');
 
+    const [nameSearch, setNameSearch] = useState<string>('');
+    const [statusSearch, setStatusSearch] = useState<string>('');
+    const searchedOrders = orders
+        // Filter theo tên
+        .filter((item) => item.name.toLowerCase().includes(nameSearch.toLowerCase()))
+        // Filter theo status
+        .filter((item) => {
+            // Trạng thái mặc định hiển thị all
+            if(statusSearch === '') return true;
+            // Trạng thái hiển thị theo searchStatus
+            return item.status === statusSearch
+        })
+
+    // Hàm clear filter
+    const handleClearFilter = () => {
+        setNameSearch('')
+        setStatusSearch('')
+    }
+
     // Hàm mở modal detail
     const handleViewDetail = (order: IOrder) => {
         setIsOpenDetail(true);
@@ -55,7 +74,15 @@ const ManageOrders = () => {
         setLoading(true)
         try {
             const data = { _id: changeID, status: changeValue }
-            await changeStatus(data)
+            const res = await changeStatus(data)
+
+            setOrders((prev) =>
+                prev.map((item) =>
+                    item._id === changeID
+                        ? {...item, status: res.data.status}
+                        : item
+                )
+            )
 
             toast.success("Thay đổi thành công")
         }catch(error){
@@ -147,16 +174,29 @@ const ManageOrders = () => {
 
                     {/* Tìm kiếm */}
                     <div className="mt-6">
-                        <p className="font-medium mb-4 text-xl">Bộ lọc</p>
+                        <div className='flex items-center justify-between'>
+                            <p className='font-medium mb-4 text-xl'>Bộ lọc</p>
+                            {nameSearch.trim().length > 0 || statusSearch ? (
+                                <button
+                                    onClick={handleClearFilter}
+                                    className='mb-3 px-2 py-1 font-medium rounded-md bg-indigo-100 text-indigo-800 hover:shadow-md hover:shadow-indigo-400 transition-all'
+                                >
+                                    Xoá lọc
+                                </button>
+                            ) : ''}
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             {/* Input Tên khách */}
                             <label className="relative">
                                 <input
                                     type="text"
+                                    value={nameSearch}
                                     required
+                                    onChange={(e) => setNameSearch(e.target.value)}
                                     className="border rounded-md w-full px-3 py-2 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all peer"
                                 />
-                                <span className="absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75">
+                                <span
+                                    className="absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75">
                                     Tên khách
                                 </span>
                             </label>
@@ -168,19 +208,22 @@ const ManageOrders = () => {
                                     required
                                     className="border rounded-md w-full px-3 py-2 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all peer"
                                 />
-                                <span className="absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75">
+                                <span
+                                    className="absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75">
                                     Số bàn
                                 </span>
                             </label>
 
                             {/* Select Trạng thái */}
                             <select
+                                value={statusSearch}
+                                onChange={(e) => setStatusSearch(e.target.value)}
                                 className="border rounded-md px-3 py-2 w-full hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all"
                             >
                                 <option value="">Trạng thái</option>
-                                <option value="pending">Đang chờ</option>
-                                <option value="completed">Hoàn thành</option>
-                                <option value="cancelled">Đã hủy</option>
+                                <option value="waiting">Đang chờ</option>
+                                <option value="ordered">Đã phục vụ</option>
+                                <option value="paid">Đã thanh toán</option>
                             </select>
 
                             {/* Nội dung trống để giữ layout */}
@@ -191,100 +234,113 @@ const ManageOrders = () => {
                 </div>
 
                 {/* Danh sách đơn hàng */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-                    {orders.map((order) => (
-                        <div
-                            key={order._id}
-                            className="relative flex items-center bg-white shadow-md rounded-md overflow-hidden border border-gray-200 p-[10px]"
-                        >
-                            {/* Nút X để xoá */}
-                            <button
-                                className="absolute top-2 right-2 text-gray-500 hover:text-red-600 transition"
-                                onClick={() => handleClickDelete(order)}
-                            >
-                                ✖
-                            </button>
+                {orders.length === 0 ? (
+                    <div className='text-center py-6 font-bold text-md'>
+                        Không có dữ liệu đơn hàng
+                    </div>
+                ) : (
 
-                            {/* Nội dung */}
-                            <div className="flex flex-col flex-1">
-                                <h2 className="text-md font-semibold text-gray-800">{order.name}</h2>
-                                <div className="flex justify-between items-center text-sm">
-                                    <p>
-                                        <span className="font-sm text-xs text-gray-500">Tổng: </span>
-                                        {order.order_details
-                                            ?.reduce((total, item) => {
-                                                // Tổng giá sản phẩm chính
-                                                const itemTotal = (item.price || 0) * (item.quantity || 0);
-
-                                                // Tổng giá của topping
-                                                const toppingTotal = item.topping?.reduce((toppingSum, topping) => {
-                                                    return toppingSum + (topping.price || 0);
-                                                }, 0) || 0;
-
-                                                // Cộng tổng giá sản phẩm và topping (topping cũng nhân với số lượng sản phẩm)
-                                                return total + itemTotal + toppingTotal;
-                                            }, 0)
-                                            ?.toLocaleString() || 0} VNĐ
-                                    </p>
-                                </div>
-                                <div>
-                                    <span className="font-sm text-xs text-gray-500">Thời gian: </span>
-                                    {new Date(order.createdAt).toLocaleString("vi-VN", {
-                                        day: "2-digit",
-                                        month: "2-digit",
-                                        year: "numeric",
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                        second: "2-digit",
-                                        hour12: false, // Sử dụng định dạng 24 giờ
-                                    })}
-                                </div>
-
-                                {/* Trạng thái */}
-                                <div className='flex justify-between items-center'>
-                                    <div>
-                                        {changeID === order._id ? (
-                                            <div className='flex justify-around'>
-                                                <span
-                                                    onClick={() => handleClickChangeStatus(order._id, changeValue || order.status)}
-                                                    className={`flex items-center justify-center cursor-pointer text-xs text-white font-medium rounded-md px-2 py-1 transition-colors ${changeValue === 'waiting' ? 'bg-indigo-800' : changeValue === 'ordered' ? 'bg-yellow-500' : 'bg-emerald-600'}`}
-                                                >
-                                                    {changeValue}
-                                                </span>
-                                                <button
-                                                    onClick={handleCancelChange}
-                                                    className='rounded-md px-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100 mx-1'
-                                                >
-                                                    <RiCloseFill/>
-                                                </button>
-                                                <button
-                                                    onClick={handleSaveStatus}
-                                                    className='ml-2 rounded-md px-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100'
-                                                >
-                                                    <RiCheckFill/>
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <span
-                                                onClick={() => handleClickChangeStatus(order._id, order.status)}
-                                                className={`flex items-center justify-center cursor-pointer text-xs text-white font-medium rounded-md px-2 py-1 transition-colors ${order.status === 'waiting' ? 'bg-indigo-800' : order.status === 'ordered' ? 'bg-yellow-500' : 'bg-emerald-600'}`}
-                                            >
-                                                {order.status}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    <button
-                                        className="mt-2 text-indigo-600 text-xs font-medium hover:text-indigo-800 transition"
-                                        onClick={() => handleViewDetail(order)}
-                                    >
-                                        Xem chi tiết
-                                    </button>
-                                </div>
-                            </div>
+                    searchedOrders.length === 0 ? (
+                        <div className='text-center py-6 font-bold text-md'>
+                            Đơn hàng bạn tìm kiếm không tồn tại
                         </div>
-                    ))}
-                </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+                            {searchedOrders.map((order) => (
+                                <div
+                                    key={order._id}
+                                    className="relative flex items-center bg-white shadow-md rounded-md overflow-hidden border border-gray-200 p-[10px]"
+                                >
+                                    {/* Nút X để xoá */}
+                                    <button
+                                        className="absolute top-2 right-2 text-gray-500 hover:text-red-600 transition"
+                                        onClick={() => handleClickDelete(order)}
+                                    >
+                                        ✖
+                                    </button>
+
+                                    {/* Nội dung */}
+                                    <div className="flex flex-col flex-1">
+                                        <h2 className="text-md font-semibold text-gray-800">{order.name}</h2>
+                                        <div className="flex justify-between items-center text-sm">
+                                            <p>
+                                                <span className="font-sm text-xs text-gray-500">Tổng: </span>
+                                                {order.order_details
+                                                    ?.reduce((total, item) => {
+                                                        // Tổng giá sản phẩm chính
+                                                        const itemTotal = (item.price || 0) * (item.quantity || 0);
+
+                                                        // Tổng giá của topping
+                                                        const toppingTotal = item.topping?.reduce((toppingSum, topping) => {
+                                                            return toppingSum + (topping.price || 0);
+                                                        }, 0) || 0;
+
+                                                        // Cộng tổng giá sản phẩm và topping (topping cũng nhân với số lượng sản phẩm)
+                                                        return total + itemTotal + toppingTotal;
+                                                    }, 0)
+                                                    ?.toLocaleString() || 0} VNĐ
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <span className="font-sm text-xs text-gray-500">Thời gian: </span>
+                                            {new Date(order.createdAt).toLocaleString("vi-VN", {
+                                                day: "2-digit",
+                                                month: "2-digit",
+                                                year: "numeric",
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                                second: "2-digit",
+                                                hour12: false, // Sử dụng định dạng 24 giờ
+                                            })}
+                                        </div>
+
+                                        {/* Trạng thái */}
+                                        <div className='flex justify-between items-center'>
+                                            <div>
+                                                {changeID === order._id ? (
+                                                    <div className='flex justify-around'>
+                                                    <span
+                                                        onClick={() => handleClickChangeStatus(order._id, changeValue || order.status)}
+                                                        className={`flex items-center justify-center cursor-pointer text-xs text-white font-medium rounded-md px-2 py-1 transition-colors ${changeValue === 'waiting' ? 'bg-indigo-800' : changeValue === 'ordered' ? 'bg-yellow-500' : 'bg-emerald-600'}`}
+                                                    >
+                                                        {changeValue}
+                                                    </span>
+                                                        <button
+                                                            onClick={handleCancelChange}
+                                                            className='rounded-md px-2 text-red-600 transition-colors hover:text-red-800 hover:bg-gray-100 mx-1'
+                                                        >
+                                                            <RiCloseFill/>
+                                                        </button>
+                                                        <button
+                                                            onClick={handleSaveStatus}
+                                                            className='ml-2 rounded-md px-2 text-blue-600 transition-colors hover:text-blue-800 hover:bg-gray-100'
+                                                        >
+                                                            <RiCheckFill/>
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <span
+                                                        onClick={() => handleClickChangeStatus(order._id, order.status)}
+                                                        className={`flex items-center justify-center cursor-pointer text-xs text-white font-medium rounded-md px-2 py-1 transition-colors ${order.status === 'waiting' ? 'bg-indigo-800' : order.status === 'ordered' ? 'bg-yellow-500' : 'bg-emerald-600'}`}
+                                                    >
+                                                    {order.status}
+                                                </span>
+                                                )}
+                                            </div>
+
+                                            <button
+                                                className="mt-2 text-indigo-600 text-xs font-medium hover:text-indigo-800 transition"
+                                                onClick={() => handleViewDetail(order)}
+                                            >
+                                                Xem chi tiết
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )
+                )}
             </div>
         </>
     );
