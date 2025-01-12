@@ -1,4 +1,17 @@
 import instance from "@/utils/axios.config";
+import {unstable_cache} from "next/cache";
+
+const getMenuCache = unstable_cache(
+    async (current, pageSize) => {
+        const res = await instance.get('/menu', { params: { current, pageSize } });
+        return res.data;
+    },
+    ['menu-data'],
+    {
+        revalidate: 180, // 300s
+        tags: ['menu']
+    }
+)
 
 const getMenu = async (current, pageSize) => {
     const res = await instance.get('/menu', { params: { current, pageSize } });
@@ -27,4 +40,4 @@ const deleteMenu = async (id) => {
     return res.data;
 }
 
-export { getMenu, getOneMenu, addMenu, updateMenu, deleteMenu };
+export { getMenu, getOneMenu, addMenu, updateMenu, deleteMenu, getMenuCache };

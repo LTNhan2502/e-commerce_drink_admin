@@ -1,4 +1,17 @@
 import instance from "@/utils/axios.config";
+import {unstable_cache} from "next/cache";
+
+const getOrdersCache = unstable_cache(
+    async() => {
+        const res = await instance.get('/order')
+        return res.data
+    },
+    ['orders-data'],
+    {
+        revalidate: 180,
+        tags: ['orders']
+    }
+)
 
 const addOrder = async (data) => {
     const res = await instance.post('/order', data)
@@ -18,4 +31,4 @@ const changeStatus = async (data) => {
     const res = await instance.patch(`/order`, data)
     return res.data;
 }
-export { addOrder, getOrders, deleteOrder, changeStatus };
+export { addOrder, getOrders, deleteOrder, changeStatus, getOrdersCache };

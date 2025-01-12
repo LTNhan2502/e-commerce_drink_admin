@@ -9,8 +9,6 @@ import DeleteModal from "@/components/reuse/delete.modal";
 import AddOrderModal from "@/components/orders/add.order.modal";
 import {RiCheckFill, RiCloseFill} from "react-icons/ri";
 
-export
-
 const ManageOrders = () => {
     const [orders, setOrders] = useState<IOrder[]>([]);
     const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);

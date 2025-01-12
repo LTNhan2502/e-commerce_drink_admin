@@ -22,7 +22,7 @@ import {getCategory} from "@/utils/categoryServices";
 
 const DetailMenuPage = ({ params }: { params: { id: string } }) => {
     const [menu, setMenu] = useState<IProduct | null>(null)
-    const [category, setCategory] = useState<ICategory[]>([]);
+    const [category, setCategory] = useState<ICategory[]>([])
     const [size, setSize] = useState<ISize[]>([])
     const [topping, setTopping] = useState<ITopping[]>([])
     const [productName, setProductName] = useState<string>("");
@@ -95,6 +95,8 @@ const DetailMenuPage = ({ params }: { params: { id: string } }) => {
 
     // Hàm xác nhận những thay đổi trong div thông tin sản phẩm
     const handleSaveProductInfo = async () => {
+        if(!menu) return;
+
         setLoading(true);
         try {
             const updatedMenu = {
@@ -107,6 +109,7 @@ const DetailMenuPage = ({ params }: { params: { id: string } }) => {
             const res = await updateMenu(params.id, updatedMenu)
 
             if(res){
+                setMenu(updatedMenu)
                 toast.success("Lưu thành công")
             }
         }catch(error){
@@ -119,6 +122,8 @@ const DetailMenuPage = ({ params }: { params: { id: string } }) => {
 
     // Hàm xác nhận thay đổi ảnh
     const handleSaveImag = async () => {
+        if(!menu) return;
+
         if(!file){
             toast.info("Vui lòng chọn ảnh trước khi lưu")
             return;
@@ -133,7 +138,10 @@ const DetailMenuPage = ({ params }: { params: { id: string } }) => {
                     ...menu,
                     images: resUpload.data.data.publicId
                 }
+
                 await updateMenu(params.id, updatedMenu)
+
+                setMenu(updatedMenu)
                 toast.success("Lưu thành công")
             }catch(error){
                 console.log("Failed to save image", error)
@@ -147,6 +155,8 @@ const DetailMenuPage = ({ params }: { params: { id: string } }) => {
 
     // Hàm xác nhận những thay đổi của size
     const handleSaveSize = async () => {
+        if(!menu) return;
+
         setLoading(true)
         try {
             // Ép size mới vào menu.size
@@ -155,8 +165,10 @@ const DetailMenuPage = ({ params }: { params: { id: string } }) => {
                 size: selectedSize.map(({ size, price }) => ({ size, price })),
             }
 
-            const res = await updateMenu(params.id, updatedMenu);
+            const res = await updateMenu(params.id, updatedMenu)
+
             if(res){
+                setMenu(updatedMenu)
                 toast.success("Lưu thành công")
             }
         }catch(error){
@@ -169,6 +181,8 @@ const DetailMenuPage = ({ params }: { params: { id: string } }) => {
 
     // Hàm xác nhận những thay đổi của topping
     const handleSaveTopping = async () => {
+        if(!menu) return;
+
         setLoading(true)
         try {
             const updatedMenu = {
@@ -179,6 +193,7 @@ const DetailMenuPage = ({ params }: { params: { id: string } }) => {
             const res = await updateMenu(params.id, updatedMenu);
 
             if(res){
+                setMenu(updatedMenu)
                 toast.success("Lưu thành công")
             }
         }catch(error){
@@ -396,7 +411,7 @@ const DetailMenuPage = ({ params }: { params: { id: string } }) => {
                                 ) : (
                                     size.map((size) => {
                                         const selected = selectedSize.find((prevS) => prevS.size === size.size)
-                                        console.log(">>chekc selected", selected)
+                                        console.log(">>chekc selected size", selected)
                                         return (
                                             <label
                                                 key={size._id}

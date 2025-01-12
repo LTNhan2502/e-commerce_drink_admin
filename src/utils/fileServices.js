@@ -1,4 +1,17 @@
 import instance from "./axios.config";
+import {unstable_cache} from "next/cache";
+
+const getFileCache = unstable_cache(
+    async (url) => {
+        const res = await instance.get(`/uploads/${url}`);
+        return res.data.data.url;
+    },
+    ['file-data'],
+    {
+        revalidate: 300,
+        tags: ['images']
+    }
+)
 
 const uploadFile = async (file) => {
     const res = await instance.post('/upload', file, {
@@ -19,4 +32,4 @@ const getFiles = async () => {
     return res.data;
 };
 
-export { uploadFile, getFile, getFiles };
+export { uploadFile, getFile, getFiles, getFileCache };

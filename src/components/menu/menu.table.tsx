@@ -42,11 +42,6 @@ const MenuTable = () => {
         setStockSearch('')
     }
 
-    // Hàm tìm kiếm
-    const handleSearch = (value: boolean) => {
-        return searchedMenu.filter((item) => item.isOutOfStock === value)
-    }
-
     // Hàm mở modal xoá
     const handleOpenDeleteModal = (menu: {name: string; _id: string}) => {
         setSelectedMenu(menu)
@@ -131,9 +126,6 @@ const MenuTable = () => {
         fetchImageURLs();
     }, [menu]);
 
-    useEffect(() => {
-        console.log(menu)
-    }, [menu]);
     return (
 
         <div className="px-5 py-4">
