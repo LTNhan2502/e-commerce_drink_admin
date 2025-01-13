@@ -83,10 +83,11 @@ interface IOrderTopping {
 
 interface ITable {
     _id?: string;
-    tableNumber: string;
-    quantity: number;
-    QRCode?: string;
-    status?: string;
-    lastGen?: string | null;
+    number_table: string;
+    qr_code: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deleted: boolean;
+    __v: number;
 }
 

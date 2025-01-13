@@ -2,6 +2,7 @@
 import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
 import LoadingOverlay from "@/components/reuse/loading.overlay";
 import {toast} from "react-toastify";
+import {addTable} from "@/utils/tableServices";
 
 interface IAddTableModal {
     show: boolean;
@@ -12,7 +13,6 @@ interface IAddTableModal {
 
 const AddTableModal: React.FC<IAddTableModal> = ({ show, handleClose, originTable, setOriginTable }) => {
     const [tableNumber, setTableNumber] = useState<string>('');
-    const [quantity, setQuantity] = useState<number>(0);
     const [isVisible, setIsVisible] = useState<boolean>(false);
     const modalRef = useRef<HTMLDivElement>(null)
     const [loading, setLoading] = useState(false);
@@ -20,18 +20,17 @@ const AddTableModal: React.FC<IAddTableModal> = ({ show, handleClose, originTabl
     // Hàm huỷ thêm table
     const handleCancel = () => {
         setTableNumber('')
-        setQuantity(0)
         handleClose()
     }
 
     // Hàm thêm table
-    const handleSubmit = () => {
-        const alreadyHaveTable = originTable.find((oT) => oT.tableNumber === tableNumber)
+    const handleSubmit = async () => {
+        const alreadyHaveTable = originTable.find((oT) => oT.number_table === tableNumber)
 
         if(alreadyHaveTable){
             toast.info("Đã có số bàn này")
             return;
-        }else if(!tableNumber.trim() || quantity <= 0){
+        }else if(!tableNumber.trim()){
             toast.info("Vui lòng nhập thông tin")
             return;
         }
@@ -39,9 +38,9 @@ const AddTableModal: React.FC<IAddTableModal> = ({ show, handleClose, originTabl
         setLoading(true)
         try {
             // Call api thêm table
+            const res = await addTable(tableNumber)
 
-
-            setOriginTable((prev) => [...prev, {tableNumber: tableNumber, quantity: quantity, status: 'inactive'}])
+            setOriginTable((prev) => [...prev, res.data])
             toast.success("Thêm mới thành công")
         }catch(error){
             console.log("Failed to add anew table", error)
@@ -49,7 +48,6 @@ const AddTableModal: React.FC<IAddTableModal> = ({ show, handleClose, originTabl
         }finally {
             setLoading(false)
             setTableNumber('')
-            setQuantity(0)
             handleClose()
         }
     }
@@ -79,7 +77,7 @@ const AddTableModal: React.FC<IAddTableModal> = ({ show, handleClose, originTabl
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [show, handleClose]);
-    // Hàm
+
     return (
         <>
             {loading && <LoadingOverlay/>}
@@ -111,21 +109,6 @@ const AddTableModal: React.FC<IAddTableModal> = ({ show, handleClose, originTabl
                             <span
                                 className='absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75'>
                                 Số bàn
-                            </span>
-                        </label>
-
-                        {/* Sức chứa */}
-                        <label className='relative block'>
-                            <input
-                                type='number'
-                                value={quantity}
-                                required
-                                onChange={(e) => setQuantity(parseInt(e.target.value))}
-                                className='border rounded-md w-full px-3 py-2 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:shadow-md focus:shadow-indigo-400 transition-all peer'
-                            />
-                            <span
-                                className='absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75'>
-                                Sức chứa
                             </span>
                         </label>
 
