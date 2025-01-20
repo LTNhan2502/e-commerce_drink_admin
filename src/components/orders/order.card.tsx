@@ -137,11 +137,6 @@ const ManageOrders = () => {
         fetchOrders()
     }, []);
 
-    // Kiểm tra orders
-    useEffect(() => {
-        console.log(">>Check order (order.card.tsx(64))", orders)
-    }, [orders]);
-
     return (
         <>
             {loading && <LoadingOverlay/>}
@@ -279,6 +274,8 @@ const ManageOrders = () => {
                                                     ?.toLocaleString() || 0} VNĐ
                                             </p>
                                         </div>
+
+                                        {/* Thời gian order */}
                                         <div>
                                             <span className="font-sm text-xs text-gray-500">Thời gian: </span>
                                             {new Date(order.createdAt).toLocaleString("vi-VN", {
@@ -290,6 +287,16 @@ const ManageOrders = () => {
                                                 second: "2-digit",
                                                 hour12: false, // Sử dụng định dạng 24 giờ
                                             })}
+                                        </div>
+
+                                        {/* Số bàn */}
+                                        <div>
+                                            <span className='font-sm text-xs text-gray-500'>Số bàn: </span>{order?.table}
+                                        </div>
+
+                                        {/* Phone */}
+                                        <div>
+                                            <span className='font-sm text-xs text-gray-500'>Số điện thoại: </span>0{order?.phone}
                                         </div>
 
                                         {/* Trạng thái */}

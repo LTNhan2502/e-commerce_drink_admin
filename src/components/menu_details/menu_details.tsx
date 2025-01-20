@@ -19,7 +19,7 @@ export default function MenuDetailsComponent() {
     const [category, setCategory] = useState<ICategory[]>([]);
     const [loading, setLoading] = useState(false);
 
-    const [selectedObject, setSelectedObject] = useState<ISize | ITopping | Partial<ISize> | Partial<ITopping>>({});
+    const [selectedObject, setSelectedObject] = useState<{ name: string; _id: string } | null>(null);
     const [selectedType, setSelectedType] = useState<'size' | 'topping' | 'category'>('size');
     const [showSizeModal, setShowSizeModal] = useState(false);
     const [showToppingModal, setShowToppingModal] = useState(false);
@@ -32,7 +32,7 @@ export default function MenuDetailsComponent() {
 
     // Hàm mở modal size
     const handleOpenSizeModal = (size: ISize) => {
-        setSelectedObject(size);
+        setSelectedObject({ name: size.size, _id: size._id });
         setSelectedType('size');
         setShowDeleteModal(true);
     };
@@ -216,6 +216,8 @@ export default function MenuDetailsComponent() {
     }
 
     const handleConfirmDelete = () => {
+        if(!selectedObject) return;
+
         if (selectedObject._id) {
             if (selectedType === 'size') {
                 handleDeleteSize(selectedObject._id);

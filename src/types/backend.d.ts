@@ -59,6 +59,7 @@ interface IOrder {
     name: string;
     phone: number;
     order_details: IOrderDetails[];
+    table: number;
     status: string;
     deleted: boolean;
     createdAt: Date;

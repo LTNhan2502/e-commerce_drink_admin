@@ -14,7 +14,6 @@ interface ModalSizeProps {
 
 function ModalSize({ show, handleClose, originSize, setOriginSize }: ModalSizeProps) {
     const [size, setSize] = useState<string>('');
-    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const popupRef = useRef<HTMLDivElement>(null); // Tạo ref để tham chiếu đến modal
     const [isVisible, setIsVisible] = useState(false); // Trạng thái kiểm soát animation
@@ -71,7 +70,6 @@ function ModalSize({ show, handleClose, originSize, setOriginSize }: ModalSizePr
                     setOriginSize((prev) => [...prev, data]);
                     toast.success('Thêm size thành công!');
                     setSize('');
-                    setError('');
                     handleClose();
                 }
             } catch (error) {
@@ -81,7 +79,6 @@ function ModalSize({ show, handleClose, originSize, setOriginSize }: ModalSizePr
                 setLoading(false);
             }
         } else {
-            setError('Vui lòng nhập size');
             toast.error('Vui lòng nhập size');
         }
     };

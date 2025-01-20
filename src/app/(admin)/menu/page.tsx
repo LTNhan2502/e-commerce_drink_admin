@@ -1,9 +1,5 @@
 import {Metadata} from "next";
 import MenuTable from "@/components/menu/menu.table";
-import {getMenuCache} from "@/utils/menuServices";
-import {getCategoryCache} from "@/utils/categoryServices";
-import {Suspense} from "react";
-import LoadingOverlay from "@/components/reuse/loading.overlay";
 
 export const metadata: Metadata = {
     title: "Danh sách sản phẩm",

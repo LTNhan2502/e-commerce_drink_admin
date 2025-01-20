@@ -17,7 +17,7 @@ interface ISelectedTable {
 
 const ManageTable = () => {
     const [tables, setTables] = useState<ITable[]>([]);
-    const [selectedTable, setSelectedTable] = useState<ISelectedTable | null>(null);
+    const [selectedTable, setSelectedTable] = useState<{ name: string, _id: string } | null>(null);
     const [showAddModal, setShowAddModal] = useState<boolean>(false)
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);

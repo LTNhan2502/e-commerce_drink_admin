@@ -1,10 +1,12 @@
 'use client'
 import {useEffect, useRef, useState} from 'react';
 
+type ReactValue = string | number | boolean | null | undefined;
+
 interface DeleteModalProps {
     show: boolean;
     handleClose: () => void;
-    selectedObject: { [key: string]: any } | null; // Linh hoạt để nhận mọi đối tượng
+    selectedObject: Record<string, ReactValue> | null; // Linh hoạt để nhận mọi đối tượng
     selectType: string;
     onConfirm:  () => void ;
 }

@@ -5,6 +5,7 @@ import {getTopping} from "@/utils/toppingClient";
 import LoadingOverlay from "@/components/reuse/loading.overlay";
 import {toast} from "react-toastify";
 import {addOrder} from "@/utils/orderServices";
+import {getAllTable} from "@/utils/tableServices";
 
 interface IAddOrderModal {
     setOrders: Dispatch<SetStateAction<IOrder[]>>;
@@ -22,13 +23,17 @@ interface IProdS extends IProduct {
 const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose }) => {
     const [name, setName] = useState<string>('');
     const [phone, setPhone] = useState<string>('');
+    const [tables, setTables] = useState<ITable[]>([]);
+    const [selectedTable, setSelectedTable] = useState<number>(0)
     const [errorName, setErrorName] = useState<string>('');
     const [errorPhone, setErrorPhone] = useState<string>('');
+    const [errorTable, setErrorTable] = useState<string>('')
 
     const [menu, setMenu] = useState<IProduct[]>([])
     const [topping, setTopping] = useState<ITopping[]>([])
     const [tampSelectedMenuID, setTampSelectedMenuID] = useState<string>('')
     const [selectedMenu, setSelectedMenu] = useState<IProdS[]>([])
+
     const modalRef = useRef<HTMLDivElement>(null)
     const [visible, setVisible] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
@@ -43,6 +48,8 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
     const handleNameBlur = () => {
         if(!name.trim()){
             setErrorName('Vui lòng nhập tên')
+        }else{
+            setErrorName("")
         }
     }
 
@@ -58,6 +65,17 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
             setErrorPhone('Vui lòng nhập số điện thoại')
         }else if(phone.length !== 10 || !/^0\d{9}$/.test(phone)){
             setErrorPhone('Số điện thoại không hợp lệ')
+        }else{
+            setErrorPhone("")
+        }
+    }
+
+    // Hàm kiểm tra số bàn hợp lệ
+    const handleTableBlur = () => {
+        if(selectedTable === 0){
+            setErrorTable('Vui lòng chọn số bàn')
+        }else{
+            setErrorTable("")
         }
     }
 
@@ -91,9 +109,8 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
             })
         }catch(error){
             console.log("Failed to fecth target menu", error)
+            toast.error('Có lỗi xảy ra khi thêm sản phẩm')
         }finally {
-            setName('')
-            setPhone('')
             setTampSelectedMenuID('')
             setLoading(false)
         }
@@ -188,20 +205,39 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
 
     // Hàm huỷ chọn các selectedMenu
     const handleCancelSelect = () => {
-        handleClose()
+        setName('')
+        setPhone('')
+        setSelectedTable(0)
         setSelectedMenu([])
+        handleClose()
     }
 
     // Hàm xác nhận order
     const handleCreateOrder = async () => {
-        // Validate
-        if(errorName.trim() || errorPhone.trim()){
-            toast.info("Vui lòng nhập thông tin")
+        // Kiểm tra name
+        if(!name.trim()) {
+            toast.info("Vui lòng nhập tên")
+            return;
+        }
+
+        // Kiểm tra phone
+        if(!phone) {
+            toast.info("Vui lòng nhập số điện thoại")
+            return;
+        }
+        if(phone.length !== 10 || !/^0\d{9}$/.test(phone)) {
+            toast.info("Số điện thoại không hợp lệ")
+            return;
+        }
+
+        // Validate số bàn
+        if(selectedTable === 0) {
+            toast.info("Vui lòng chọn số bàn")
             return;
         }
 
         // Validate sản phẩm chọn
-        if(!selectedMenu || selectedMenu.length < 1){
+        if(!selectedMenu || selectedMenu.length < 1) {
             toast.info("Vui lòng chọn sản phẩm")
             return;
         }
@@ -217,6 +253,7 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
                     price: menu.selectedSize?.price,
 
                 })),
+                table: selectedTable,
                 status: "waiting"
             }
             const res = await addOrder(order);
@@ -224,36 +261,39 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
             if(res){
                 setOrders((prev) => [...prev, res.data]);
                 toast.success("Thêm thành công")
+                setName("");
+                setPhone("");
+                setSelectedTable(0)
+                setSelectedMenu([]);
+                handleClose();
             }
         }catch(error){
             console.log("Failed to create order", error)
             toast.error("Không thể thêm mới")
         }finally {
-            handleClose()
-            setName("");
-            setPhone("");
-            setSelectedMenu([]);
             setLoading(false)
         }
     }
 
-    // Fetch menu, topping
+    // Fetch menu, topping, table
     useEffect(() => {
-        const fetchMenuNSizeNTopping = async() => {
+        const fetchMenuNSizeNToppingNTable = async() => {
             try {
-                const [menuRes, toppingRes] = await Promise.all([
+                const [menuRes, toppingRes, tableRes] = await Promise.all([
                     getMenu(1, 30),
-                    getTopping()
+                    getTopping(),
+                    getAllTable()
                 ])
 
                 setMenu(menuRes.data.result)
                 setTopping(toppingRes.data)
+                setTables(tableRes.data)
             }catch(error){
                 console.log("Failed to fetch menu and topping", error)
             }
         }
 
-        fetchMenuNSizeNTopping()
+        fetchMenuNSizeNToppingNTable()
     }, []);
 
     // Kích hoạt animation, đợi animation
@@ -281,11 +321,10 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
         }
     }, [show, handleClose]);
 
-    // Log selectedMenu
+    // Log
     useEffect(() => {
-        console.log(">>Check selectedMenu", selectedMenu)
         console.log(">>Check name and phone", name, phone)
-    }, [selectedMenu, name, phone]);
+    }, [name, phone]);
 
     return (
         <>
@@ -309,13 +348,14 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
                         {/* Nội dung modal */}
                         <div className='flex justify-between'>
                             {/* Tên */}
-                            <label className='relative w-1/2 mr-3'>
+                            <label className='relative w-1/3 mr-3'>
                                 <input
                                     type='text'
+                                    value={name}
                                     required
                                     onChange={handleNameChange}
                                     onBlur={handleNameBlur}
-                                    className='border rounded-md w-full px-3 py-2 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all peer'
+                                    className='border rounded-md w-full px-3 py-2 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:shadow-md focus:shadow-indigo-400 transition-all peer'
                                 />
                                 <span
                                     className='absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75'>
@@ -327,13 +367,14 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
                             </label>
 
                             {/* Số điện thoại */}
-                            <label className='relative w-1/2'>
+                            <label className='relative w-1/3 mr-3'>
                                 <input
                                     type='text'
                                     required
+                                    value={phone}
                                     onChange={handlePhoneChange}
                                     onBlur={handlePhoneBlur}
-                                    className='border rounded-md w-full px-3 py-2 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all peer'
+                                    className='border rounded-md w-full px-3 py-2 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:shadow-md focus:shadow-indigo-400 transition-all peer'
                                 />
                                 <span
                                     className='absolute rounded-md top-2 left-0 ml-1 px-3 bg-white text-gray-500 pointer-events-none transition-all peer-focus:text-indigo-800 peer-focus:-translate-y-6 peer-valid:-translate-y-6 peer-focus:scale-75 peer-valid:scale-75'>
@@ -341,6 +382,29 @@ const AddOrderModal: React.FC<IAddOrderModal> = ({ setOrders, show, handleClose 
                                 </span>
                                 <p className="text-red-500 text-sm  mt-1 h-5">
                                     {errorPhone.trim() ? errorPhone : ''}
+                                </p>
+                            </label>
+
+                            {/* Số bàn */}
+                            <label className='relative w-1/3'>
+                                <select
+                                    value={selectedTable}
+                                    onChange={(e) => setSelectedTable(parseInt(e.target.value))}
+                                    onBlur={handleTableBlur}
+                                    className='w-full px-3 py-2 border rounded-md hover:border-gray-400 focus:outline-none focus:shadow-md focus:shadow-indigo-400 focus:ring-1 focus:ring-indigo-500 transition-all'
+                                >
+                                    <option value="0">Chọn bàn</option>
+                                    {tables.map(table => (
+                                        <option
+                                            key={table._id}
+                                            value={table.number_table}
+                                        >
+                                            {table.number_table}
+                                        </option>
+                                    ))}
+                                </select>
+                                <p className='text-red-500 text-sm mt-1 h-5'>
+                                    {errorTable.trim() ? errorTable : ""}
                                 </p>
                             </label>
                         </div>
