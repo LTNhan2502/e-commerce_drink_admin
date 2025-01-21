@@ -10,9 +10,9 @@ export function middleware(request: NextRequest) {
     }
 
     // Nếu người dùng chưa đăng nhập, cấm truy cập các route ngoài /auth/*
-    // if (!token && !pathname.startsWith("/auth")) {
-    //     return NextResponse.redirect(new URL("/auth/login", request.url));
-    // }
+    if (!token && !pathname.startsWith("/auth")) {
+        return NextResponse.redirect(new URL("/auth/login", request.url));
+    }
 
     // Tiếp tục nếu không vi phạm điều kiện
     return NextResponse.next();
