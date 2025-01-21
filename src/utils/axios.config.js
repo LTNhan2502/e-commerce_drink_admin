@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 // Tạo một instance Axios
 const instance = axios.create({
     baseURL: "https://order-drink.vercel.app",
-    withCredentials: true, // Đảm bảo gửi cookies trong request
+    credentials: 'include', // Đảm bảo gửi cookies trong request
     headers: {
         "Content-Type": "application/json",
     },
