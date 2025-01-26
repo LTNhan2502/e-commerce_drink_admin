@@ -8,6 +8,7 @@ import {toast} from "react-toastify";
 import DeleteModal from "@/components/reuse/delete.modal";
 import AddOrderModal from "@/components/orders/add.order.modal";
 import {RiCheckFill, RiCloseFill} from "react-icons/ri";
+import {AiOutlineLeft, AiOutlineRight} from "react-icons/ai";
 
 const ManageOrders = () => {
     const [orders, setOrders] = useState<IOrder[]>([]);
@@ -23,6 +24,10 @@ const ManageOrders = () => {
 
     const [selectedDeleteOrder, setSelectedDeleteOrder] = useState<{ name: string, id: string }>({ name: '', id: '' });
     const [deleteOrderID, setDeleteOrderID] = useState<string>('');
+
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [totalPage, setTotalPage] = useState<number>(1);
+    const pageSize = 8;
 
     const [nameSearch, setNameSearch] = useState<string>('');
     const [statusSearch, setStatusSearch] = useState<string>('');
@@ -120,22 +125,34 @@ const ManageOrders = () => {
         }
     }
 
+    // Hàm thay đổi trang
+    const handleChangePage = (page: number) => {
+        if(page === currentPage) return;
+
+        setCurrentPage(page);
+        window.scroll({ top: 0, behavior: 'smooth' });
+    }
+
+    // Fetch order
+    const fetchOrders = async (page: number) => {
+        setLoading(true);
+        try {
+            const res = await getOrders(page, pageSize);
+
+            setOrders(res.data.result);
+            setTotalPage(res.data.meta.sumPage);
+        }catch (error){
+            console.log("Failed to fetch orders", error)
+            toast.error("Lỗi lấy dữ liệu order")
+        }finally {
+            setLoading(false);
+        }
+    }
+
     // Fetch all orders
     useEffect(() => {
-        const fetchOrders = async () => {
-            setLoading(true);
-            try {
-                const res = await getOrders();
-                setOrders(res.data.result);
-            }catch (error){
-                console.log("Failed to fetch orders", error)
-            }finally {
-                setLoading(false);
-            }
-        }
-
-        fetchOrders()
-    }, []);
+        fetchOrders(currentPage)
+    }, [currentPage]);
 
     return (
         <>
@@ -346,6 +363,61 @@ const ManageOrders = () => {
                         </div>
                     )
                 )}
+
+                {/* Pagination */}
+                <div className='flex justify-center items-center gap-2 mt-6'>
+                    {/* Nút lùi trang */}
+                    <button
+                        onClick={() => handleChangePage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className={`p-2 border rounded-md ${
+                            currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:border-gray-400'
+                        }`}
+                    >
+                        <AiOutlineLeft/>
+                    </button>
+
+                    {/* Phần các trang */}
+                    {[...Array(totalPage)].map((_, index) => {
+                        const pageNumber = index + 1;
+
+                        // Hiển thị các trang gần trang hiện tại 1 đơn vị và trang đầu, trang cuối
+                        if(pageNumber === 1 || pageNumber === totalPage || (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)){
+                            return(
+                                <button
+                                    key={pageNumber}
+                                    onClick={() => handleChangePage(pageNumber)}
+                                    className={`px-4 py-2 border rounded-md 
+                                        ${currentPage === pageNumber ? 'bg-indigo-100 text-indigo-800' : 'hover:border-gray-400'}
+                                    `}
+                                >
+                                    {pageNumber}
+                                </button>
+                            )
+                        }
+
+                        // Hiển thị dấu ...
+                        if(pageNumber >= currentPage - 2 || pageNumber <= currentPage + 2){
+                            return(
+                                <span key={pageNumber}>...</span>
+                            )
+                        }
+
+                        // Không hiển thị các trang không thuộc phạm vi
+                        return null;
+                    })}
+
+                    {/* Nút lên trang */}
+                    <button
+                        onClick={() => handleChangePage(currentPage + 1)}
+                        disabled={currentPage === totalPage}
+                        className={`p-2 border rounded-md ${
+                            currentPage === totalPage ? 'opacity-50 cursor-not-allowed' : 'hover:border-gray-400'
+                        }`}
+                    >
+                        <AiOutlineRight/>
+                    </button>
+                </div>
             </div>
         </>
     );

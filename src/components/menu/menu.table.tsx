@@ -13,6 +13,7 @@ import Link from "next/link";
 import AddMenuModal from "@/components/menu/add.menu.modal";
 import {toast} from "react-toastify";
 import DeleteModal from "@/components/reuse/delete.modal";
+import {AiOutlineLeft, AiOutlineRight} from "react-icons/ai";
 
 const MenuTable = () => {
     const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false);
@@ -35,6 +36,10 @@ const MenuTable = () => {
             // Nếu stockSearch là true, thì return true, ngược lại
             return item.isOutOfStock === ( stockSearch === 'true' )
         })
+
+    const [currentPage, setCurrentPage] = useState<number>(1)
+    const [totalPages, setTotalPages] = useState<number>(1)
+    const pageSize = 10
 
     // Hàm clear filter
     const handleClearFilter = () => {
@@ -72,27 +77,38 @@ const MenuTable = () => {
         }
     }
 
+    // Hàm fetch menu
+    const fetchMenu = async (currentPage: number) => {
+        setLoading(true)
+        try {
+            const [menuRes, categoryRes] = await Promise.all([
+                getMenu(currentPage, pageSize),
+                getCategory()
+            ])
+
+            setMenu(menuRes.data.result)
+            setTotalPages(menuRes.data.meta.sumPage)
+            setCategory(categoryRes.data)
+        }catch(error){
+            console.log("Failed to fetch menu data", error)
+            toast.error("Lỗi lấy dữ liệu menu")
+        }finally {
+            setLoading(false)
+        }
+    }
+
+    // Hàm chuyển trang
+    const handleChangePage = (page: number ) => {
+        if(page === currentPage) return;
+
+        setCurrentPage(page)
+        window.scroll({ top: 0, behavior: "smooth" })
+    }
+
     // Fetch data menu, category
     useEffect(() => {
-        const fetchMenu = async () => {
-            setLoading(true)
-            try {
-                const [menuRes, categoryRes] = await Promise.all([
-                    getMenu(1, 30),
-                    getCategory()
-                ])
-
-                setMenu(menuRes.data.result)
-                setCategory(categoryRes.data)
-            }catch(error){
-                console.log("Failed to fetch menu and category", error)
-            }finally {
-                setLoading(false)
-            }
-        }
-
-        fetchMenu()
-    }, []);
+        fetchMenu(currentPage)
+    }, [currentPage]);
 
     // Fetch image url
     useEffect(() => {
@@ -211,6 +227,7 @@ const MenuTable = () => {
                 </div>
             </div>
 
+            {/* Menu */}
             <div className="relative border rounded-lg bg-white shadow-md mt-12">
                 <div
                     className='flex justify-start items-center relative -mt-6 z-[10] bg-indigo-100 mx-4 rounded-md px-3 py-4 shadow-md shadow-indigo-200'
@@ -305,6 +322,63 @@ const MenuTable = () => {
                     ))}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Pagination */}
+            <div className='flex items-center justify-center gap-2 mt-6'>
+                {/* Nút lùi trang */}
+                <button
+                    onClick={() => handleChangePage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`p-2 border rounded-md ${
+                        currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:border-gray-400'
+                    }`}
+                >
+                    <AiOutlineLeft/>
+                </button>
+
+                {/* Phần các trang */}
+                {/* Dùng spread để tạo ra mảng có giá trị từ pageNumber tới totalPages */}
+                {[...Array(totalPages)].map((_, index) => {
+                    const pageNumber = index + 1;
+
+                    // Hiển thị các số trang cụ thể (trang đầu, trang cuối và các trang gần `currentPage` 1 đơn vị)
+                    if (pageNumber === 1 || pageNumber === totalPages || (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)) {
+                        return (
+                            <button
+                                key={pageNumber}
+                                onClick={() => handleChangePage(pageNumber)}
+                                className={`px-4 py-2 border rounded-md 
+                                    ${currentPage === pageNumber ? 'bg-indigo-100 text-indigo-800' : 'hover:border-gray-400'}
+                                `}
+                            >
+                                {pageNumber}
+                            </button>
+                        );
+                    }
+
+                    // Hiển thị dấu ...
+                    if (pageNumber === currentPage - 2 || pageNumber === currentPage + 2) {
+                        return (
+                            <span key={pageNumber} className="px-2">...</span>
+                        );
+                    }
+
+                    // Không hiển thị các trang không thuộc phạm vi
+                    return null;
+                })}
+
+
+                {/* Nút lên trang */}
+                <button
+                    onClick={() => handleChangePage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className={`p-2 border rounded-md ${
+                        currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:border-gray-400'
+                    }`}
+                >
+                    <AiOutlineRight/>
+                </button>
             </div>
         </div>
     );
